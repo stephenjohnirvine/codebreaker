@@ -6,6 +6,7 @@ import { GameLobby } from './GameLobby';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import io from 'socket.io-client';
 import { GameRunning } from './GameRunning';
+import { GameOver } from './GameOver';
 
 type PathParamsType = {
   id: string;
@@ -138,6 +139,12 @@ class Game extends React.Component<GameProps, GameReactState> {
           myId={this.state.myId as number}
           onTeamGuess={this.onTeamGuess.bind(this)}
           onTransmit={this.onTransmit.bind(this)}
+        />
+      );
+    } else if ((this.state.game as GameState).state === 'FINISHED') {
+      child = (
+        <GameOver
+          winner={(this.state.game as GameState).winner as 'draw' | TeamID}
         />
       );
     }

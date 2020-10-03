@@ -25,6 +25,7 @@ export const TeamHistory = ({ turns }: TeamHistoryProps) => {
 
   return (
     <div>
+      <h4>Team transmission history</h4>
       <table>
         <thead>
           <tr>

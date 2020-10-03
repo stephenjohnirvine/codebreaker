@@ -48,4 +48,5 @@ export type GameState = {
     red: Team,
     blue: Team
     history: Array<Turn>
+    winner: undefined | "draw" | TeamID
 };
