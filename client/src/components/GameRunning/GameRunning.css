@@ -1,0 +1,18 @@
+.parent {
+  display: flex;
+}
+
+.yourTeam {
+  flex-grow: 1;
+}
+
+.otherTeam {
+  flex-grow: 1;
+}
+
+.sidePanel {
+  width: 150px;
+  background-color: lightblue;
+  border-radius: 3px;
+  padding: 10px;
+}

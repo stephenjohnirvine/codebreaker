@@ -1,0 +1,67 @@
+.title {
+  margin: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: lightgray;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.rows {
+  margin: 10px 0px;
+}
+
+.code {
+  background-color: rgb(112, 137, 251);
+  padding: 4px 4px;
+  margin: 0px 4px;
+  border-radius: 3px;
+}
+
+.codeDigit {
+  margin: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: lightgray;
+}
+
+.digitEncoding {
+  margin: 5px;
+  padding: 4px 0px;
+  flex-grow: 1;
+}
+
+.button {
+  flex-grow: 1;
+  display: inline-block;
+  padding: 0.35em 1.2em;
+  border: 0.1em solid;
+  margin: 0px 5px;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  color: black;
+  background-color: #00740a23;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.button:disabled {
+  background-color: #d8d8d8;
+  color: rgb(146, 145, 145);
+}
+
+.button:disabled:hover {
+  background-color: #d8d8d8;
+  color: rgb(146, 145, 145);
+}
+
+.button:hover {
+  color: #000000;
+  background-color: #00f0148f;
+}

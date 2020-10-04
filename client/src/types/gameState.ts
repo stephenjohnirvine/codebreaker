@@ -28,10 +28,10 @@ type CommonTurn = {
 
 export type IncompleteTurn = CommonTurn & {
     type: "INCOMPLETE"
-    transmission: Transmission | undefined,
-    guesses: {
-        red: Code | undefined,
-        blue: Code | undefined
+    transmission?: Transmission,
+    guesses?: {
+        red?: Code,
+        blue?: Code
     }
 };
 

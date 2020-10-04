@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Player as PlayerClass } from '../types/player';
+import { Player as PlayerClass } from '../../types/player';
 import './Player.css';
 
 export type PlayerProps = {

@@ -72,10 +72,14 @@ export const YourTeam = ({
       />
     );
   } else if (currentStatus === 'GUESSED') {
+    const guesses = currentTurn.guesses;
+    if (guesses === undefined) {
+      throw new Error('Status guessed but no guesses exist');
+    }
     contextComponent = (
       <GuessSubmitted
         transmission={currentTurn.transmission as Transmission}
-        guess={currentTurn.guesses[team] as Code}
+        guess={guesses[team] as Code}
       />
     );
   }
