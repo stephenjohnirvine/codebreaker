@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { Player } from '../../types/player';
+import { Player as PlayerClass } from '../../types/player';
+import { Player } from '../Player/Player';
 
-interface PlayersProps {
-  players: Player[];
-}
+export type PlayersProps = {
+  players: PlayerClass[];
+};
 
 export const Players = ({ players }: PlayersProps) => (
   <table>
@@ -12,17 +13,12 @@ export const Players = ({ players }: PlayersProps) => (
       <tr>
         <th colSpan={2}>Players</th>
       </tr>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-      </tr>
     </thead>
     <tbody>
       {players.map((player: any) => {
         return (
           <tr key={player.id}>
-            <td>{player.id}</td>
-            <td>{player.name}</td>
+            <Player player={player} />
           </tr>
         );
       })}
