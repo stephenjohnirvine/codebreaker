@@ -1,0 +1,31 @@
+.player {
+  display: flex;
+  background-color: lightgray;
+  border-radius: 3px;
+  min-width: 100px;
+  max-width: 200px;
+  min-height: 40px;
+  align-items: center;
+}
+
+.name {
+  flex-grow: 1;
+  margin: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.dot {
+  margin: 15px;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.connected {
+  background-color: green;
+}
+
+.disconnected {
+  background-color: red;
+}

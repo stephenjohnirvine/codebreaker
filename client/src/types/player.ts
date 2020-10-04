@@ -1,6 +1,6 @@
 
 export interface Player {
-    id: number;
+    id: string;
     name: string;
     status: "connected" | "disconnected";
 }
