@@ -2,9 +2,9 @@ import React from 'react';
 import './App.css';
 // import io from 'socket.io-client'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { Landing } from './components/Landing';
-import Game from './components/Game';
+import { Header } from './components/Header/Header';
+import { Landing } from './components/Landing/Landing';
+import Game from './components/Game/Game';
 
 interface AppProps {}
 interface AppState {}

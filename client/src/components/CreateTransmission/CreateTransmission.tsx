@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Code, Transmission } from '../types/gameState';
+import { Code, Transmission } from '../../types/gameState';
 
-type CreateTransmissionProps = {
+export type CreateTransmissionProps = {
   code: Code;
   onSend: (transmission: Transmission) => void;
 };

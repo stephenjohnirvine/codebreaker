@@ -1,5 +1,5 @@
 import React from 'react';
-import { TeamID } from '../types/gameState';
+import { TeamID } from '../../types/gameState';
 
 type GameOverProps = {
   winner: 'draw' | TeamID;

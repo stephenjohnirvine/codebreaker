@@ -1,6 +1,6 @@
 import React from 'react';
-import { GameState, TeamID, CompletedTurn } from '../types/gameState';
-import { TeamHistory } from './TeamHistory';
+import { GameState, TeamID, CompletedTurn } from '../../types/gameState';
+import { TransmissionHistory } from '../TransmissionHistory/TransmissionHistory';
 
 type OtherTeamProps = {
   game: GameState;
@@ -15,7 +15,7 @@ export const OtherTeam = ({ game, team }: OtherTeamProps) => {
   return (
     <div>
       <h3>Other Team History</h3>
-      <TeamHistory turns={teamTurnHistory} />
+      <TransmissionHistory transmissions={teamTurnHistory} />
     </div>
   );
 };

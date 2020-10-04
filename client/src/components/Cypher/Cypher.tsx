@@ -1,11 +1,11 @@
 import React from 'react';
-import { Cypher } from '../types/gameState';
+import { Cypher as CypherClass } from '../../types/gameState';
 
-export type YourCypherProps = {
-  cypher: Cypher;
+export type CypherProps = {
+  cypher: CypherClass;
 };
 
-export const YourCypher = ({ cypher }: YourCypherProps) => {
+export const Cypher = ({ cypher }: CypherProps) => {
   return (
     <div>
       <table>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code, Transmission } from '../types/gameState';
+import { Code, Transmission } from '../../types/gameState';
 
 type GuessSubmittedProps = {
   guess: Code;

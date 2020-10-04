@@ -6,14 +6,14 @@ import {
   CompletedTurn,
   Transmission,
   Code,
-} from '../types/gameState';
-import { YourCypher } from './YourCypher';
-import { TeamHistory } from './TeamHistory';
-import { CreateTransmission } from './CreateTransmission';
-import { GuessCode } from './GuessCode';
-import { TransmissionSent } from './TransmissionSent';
-import { WaitingForTransmission } from './WaitingForTransmission';
-import { GuessSubmitted } from './GuessSubmitted';
+} from '../../types/gameState';
+import { Cypher } from '../Cypher/Cypher';
+import { TransmissionHistory } from '../TransmissionHistory/TransmissionHistory';
+import { CreateTransmission } from '../CreateTransmission/CreateTransmission';
+import { GuessCode } from '../GuessCode/GuessCode';
+import { TransmissionSent } from '../TransmissionSent/TransmissionSent';
+import { WaitingForTransmission } from '../WaitingForTransmission/WaitingForTransmission';
+import { GuessSubmitted } from '../GuessSubmitted/GuessSubmitted';
 
 export type YourTeamProps = {
   game: GameState;
@@ -87,9 +87,9 @@ export const YourTeam = ({
   return (
     <div>
       <div>You are on the {team} team!</div>
-      <YourCypher cypher={game[team].cypher} />
+      <Cypher cypher={game[team].cypher} />
       {contextComponent}
-      <TeamHistory turns={teamTurnHistory} />
+      <TransmissionHistory transmissions={teamTurnHistory} />
     </div>
   );
 };

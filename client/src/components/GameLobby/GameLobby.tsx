@@ -1,6 +1,6 @@
 import React from 'react';
-import { Players } from './Players';
-import { Player } from '../types/player';
+import { Players } from '../Players/Players';
+import { Player } from '../../types/player';
 
 export interface GameLobbyProps {
   players: Player[];

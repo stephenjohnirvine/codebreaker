@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Code, Transmission } from '../types/gameState';
+import { Code, Transmission } from '../../types/gameState';
 
 type GuessCodeProps = {
   transmission: Transmission;

@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Player } from '../types/player';
-import { GameState, Code, TeamID, Transmission } from '../types/gameState';
-import { GameLobby } from './GameLobby';
+import { Player } from '../../types/player';
+import { GameState, Code, TeamID, Transmission } from '../../types/gameState';
+import { GameLobby } from '../GameLobby/GameLobby';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import io from 'socket.io-client';
-import { GameRunning } from './GameRunning';
-import { GameOver } from './GameOver';
+import { GameRunning } from '../GameRunning/GameRunning';
+import { GameOver } from '../GameOver/GameOver';
 
 import { withCookies, Cookies } from 'react-cookie';
 
