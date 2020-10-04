@@ -1,10 +1,16 @@
-var app = require("express")();
+const express = require("express");
+const app = express();
+const path = require("path");
 var http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/static/index.html");
-});
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static("public"));
+
+// app.get("/", (req, res) => {
+//   res.sendFile(__dirname + "/public/index.html");
+// });
 
 const players = [];
 var next_id = 0;
@@ -338,6 +344,10 @@ io.on("connection", (socket) => {
   });
 });
 
-http.listen(3001, () => {
-  console.log("listening on *:3001");
+app.get("*", function (req, res) {
+  res.sendFile("index.html", { root: path.join(__dirname, "/public/") });
+});
+
+http.listen(PORT, () => {
+  console.log(`listening on *:${PORT}`);
 });
