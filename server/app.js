@@ -3,17 +3,18 @@ const app = express();
 const path = require("path");
 var http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const crypto = require("crypto");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+const DEVELOPMENT = process.env.NODE_ENV.toLowerCase() === "development";
+
+const logging = (...args) => {
+  if (DEVELOPMENT) {
+    console.log(...args);
+  }
+};
 
 app.use(express.static("public"));
-
-// app.get("/", (req, res) => {
-//   res.sendFile(__dirname + "/public/index.html");
-// });
-
-const players = [];
-var next_id = 0;
 
 const word_list = [
   "water",
@@ -81,6 +82,7 @@ const getRandomWord = () => {
 };
 
 const makeNewGameState = () => ({
+  players: [],
   current_transmitter: undefined,
   state: "LOBBY",
   red: {
@@ -146,101 +148,89 @@ const newTurn = (game_state) => {
     type: "INCOMPLETE",
   };
 };
-var game_state = undefined;
+const games = {};
 
 app.get("/new", (req, res) => {
-  console.log("GET /new");
-  if (game_state !== undefined) {
-    res.status(404);
+  logging("GET /new");
 
-    console.log("GET /new FAILED game already existed");
-    res.end("Game already exists");
-    return;
-  }
+  const gameId = crypto.randomBytes(10).toString("hex");
 
   game_state = makeNewGameState();
-  res.end(JSON.stringify(1));
-  console.log("GET /new SUCCESS");
+  games[gameId] = game_state;
+  res.end(JSON.stringify(gameId));
+  logging("New game created with ID", gameId);
 });
 
-console.log("Game state: ", game_state);
-
-// const games = io.of(/game\/[0-9]+/);
-
-// // this middleware will be assigned to each namespace
-// games.use((socket, next) => {
-//   next();
-// });
-
 io.on("connection", (socket) => {
-  if (game_state === undefined) {
-    console.log("Connection to non-existent game. Ignored");
+  const gameId = socket.handshake.query.gameId;
+  logging("connecting to game ", gameId);
+
+  if (games[gameId] === undefined) {
+    logging("Connection to non-existent game. Ignored");
     return;
   }
+
+  const game_state = games[gameId];
 
   if (game_state.state !== "LOBBY") {
-    console.log("New connection to game in progress. Ignored");
+    logging("New connection to game in progress. Ignored");
     return;
   }
 
-  console.log("New connection");
-  next_id = next_id + 1;
+  socket.join(gameId);
+
+  logging("New connection");
+
   const me = {
     name: autoPlayerNames[getRandomInt(autoPlayerNames.length - 1)],
-    id: next_id,
+    id: crypto.randomBytes(10).toString("hex"),
   };
 
-  console.log("New player: ", me.id);
+  logging("New player: ", me.id);
 
   socket.emit("welcome", me);
   socket.emit("game state", game_state);
   //socket.emit('cypher', game_state[me.team].cypher);
 
-  players.forEach((player) => {
+  game_state.players.forEach((player) => {
     socket.emit("new player", player);
   });
 
-  players.push(me);
-  console.log("Current Players", players);
+  game_state.players.push(me);
+  logging("Current Players", game_state.players);
 
-  io.emit("new player", me);
-
-  // if (game_state.current_transmitter === undefined) {
-  //   game_state.current_transmitter = me.id;
-  //   game_state[me.team].last_transmitter = me.id;
-
-  //   const code = getCode()
-  //   game_state[me.team].codes.push({ code });
-
-  //   console.log(`Player ${me.id} to encrypt code [${code}]`);
-  //   socket.emit('code', game_state.code);
-  // }
+  io.to(gameId).emit("new player", me);
 
   socket.on("player name", (name) => {
-    console.log("Player name: ", name);
+    logging("Player name: ", name);
     me.name = name;
 
-    io.emit("update player", me);
+    io.to(gameId).emit("update player", me);
   });
 
   socket.on("disconnect", () => {
-    console.log("user disconnected");
-    io.emit("player left", me);
-    const index = players.indexOf(me);
+    logging("user disconnected");
+    io.to(gameId).emit("player left", me);
+    const index = game_state.players.indexOf(me);
     if (index > -1) {
-      players.splice(index, 1);
+      game_state.players.splice(index, 1);
     }
-    console.log("Current Players", players);
+    logging("Current Players", game_state.players);
+    if (game_state.players.length === 0) {
+      // Game is empty, clean it up.
+      logging(`Game ${gameId} has no connections, destroying.`);
+      delete games[gameId];
+    }
   });
 
   socket.on("transmission", (transmission) => {
-    console.log(`player ${me.id} is transmitting [${transmission}]`);
+    logging(`player ${me.id} is transmitting [${transmission}]`);
 
     if (
       game_state.history[game_state.history.length - 1].transmission !==
       undefined
     ) {
-      console.log("Attempting to transmit again.");
+      logging("Attempting to transmit again.");
       throw new Error("Can't transmit twice for a single turn");
     }
 
@@ -248,11 +238,11 @@ io.on("connection", (socket) => {
       game_state.history.length - 1
     ].transmission = transmission;
 
-    io.emit("game state", game_state);
+    io.to(gameId).emit("game state", game_state);
   });
 
   socket.on("guess", ({ team, guess }) => {
-    console.log(
+    logging(
       `player ${me.id} has submitted guess ${guess} on behalf of team ${team}`
     );
 
@@ -317,12 +307,12 @@ io.on("connection", (socket) => {
       }
     }
 
-    console.log("Game State: ", JSON.stringify(game_state, null, 4));
-    io.emit("game state", game_state);
+    logging("Game State: ", JSON.stringify(game_state, null, 4));
+    io.to(gameId).emit("game state", game_state);
   });
 
   socket.on("start game", () => {
-    console.log("New Game");
+    logging("New Game");
 
     game_state.state = "RUNNING";
 
@@ -332,15 +322,15 @@ io.on("connection", (socket) => {
 
       return redSize > blueSize ? "blue" : "red";
     };
-    players.forEach((player) => {
+    game_state.players.forEach((player) => {
       const team = getTeam(game_state);
 
       game_state[team].players.push(player.id);
     });
     game_state.history.push(newTurn(game_state));
 
-    console.log("Game State: ", game_state);
-    io.emit("game state", game_state);
+    logging("Game State: ", game_state);
+    io.to(gameId).emit("game state", game_state);
   });
 });
 
@@ -349,5 +339,5 @@ app.get("*", function (req, res) {
 });
 
 http.listen(PORT, () => {
-  console.log(`listening on *:${PORT}`);
+  logging(`listening on *:${PORT}`);
 });

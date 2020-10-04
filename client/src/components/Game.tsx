@@ -17,6 +17,7 @@ interface GameReactState {
   players: Player[];
   myId: number | 'pending';
   game: GameState | 'pending';
+  gameId: string;
 }
 
 class Game extends React.Component<GameProps, GameReactState> {
@@ -28,12 +29,17 @@ class Game extends React.Component<GameProps, GameReactState> {
     this.state = {
       players: [],
       myId: 'pending',
+      gameId: this.props.match.params.id,
       game: 'pending',
     };
   }
 
   componentDidMount() {
-    this.socket = io();
+    this.socket = io({
+      query: {
+        gameId: this.state.gameId,
+      },
+    });
     //   this.socket = io(`/game/${this.props.match.params.id}`);
     window.addEventListener('beforeunload', this.componentCleanup);
 
