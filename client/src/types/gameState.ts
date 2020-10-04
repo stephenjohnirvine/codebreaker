@@ -1,5 +1,7 @@
+import { Player } from "./player";
+
 export type TeamID = "red" | "blue";
-export type PlayerID = number;
+export type PlayerID = string;
 export type GameStates = "LOBBY" | "RUNNING" | "FINISHED";
 
 export type Code = [number, number, number];
@@ -43,6 +45,7 @@ export type CompletedTurn = CommonTurn & {
 }
 
 export type GameState = {
+    players: Player[],
     current_transmitter: PlayerID | undefined,
     state: GameStates,
     red: Team,

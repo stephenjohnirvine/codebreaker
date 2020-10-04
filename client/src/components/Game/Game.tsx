@@ -1,7 +1,13 @@
 import React from 'react';
 
 import { Player } from '../../types/player';
-import { GameState, Code, TeamID, Transmission } from '../../types/gameState';
+import {
+  GameState,
+  Code,
+  TeamID,
+  Transmission,
+  PlayerID,
+} from '../../types/gameState';
 import { GameLobby } from '../GameLobby/GameLobby';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import io from 'socket.io-client';
@@ -19,7 +25,7 @@ type GameProps = RouteComponentProps<PathParamsType> & {
 };
 interface GameReactState {
   players: Player[];
-  myId: number | 'pending';
+  myId: PlayerID | 'pending';
   game: GameState | 'pending';
   gameId: string;
 }
@@ -143,7 +149,7 @@ class Game extends React.Component<GameProps, GameReactState> {
       child = (
         <GameLobby
           players={this.state.players}
-          myId={this.state.myId as number}
+          myId={this.state.myId}
           onNameChange={this.onNameChange.bind(this)}
           onGameStart={this.onGameStart.bind(this)}
         />
@@ -153,7 +159,7 @@ class Game extends React.Component<GameProps, GameReactState> {
         <GameRunning
           game={this.state.game as GameState}
           players={this.state.players}
-          myId={this.state.myId as number}
+          myId={this.state.myId}
           onTeamGuess={this.onTeamGuess.bind(this)}
           onTransmit={this.onTransmit.bind(this)}
         />

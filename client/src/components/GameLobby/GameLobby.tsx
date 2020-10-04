@@ -1,10 +1,11 @@
 import React from 'react';
 import { Players } from '../Players/Players';
 import { Player } from '../../types/player';
+import { PlayerID } from '../../types/gameState';
 
 export interface GameLobbyProps {
   players: Player[];
-  myId: number;
+  myId: PlayerID;
   onNameChange: (name: string) => void;
   onGameStart: () => void;
 }
