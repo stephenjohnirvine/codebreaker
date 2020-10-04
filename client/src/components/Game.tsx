@@ -8,11 +8,15 @@ import io from 'socket.io-client';
 import { GameRunning } from './GameRunning';
 import { GameOver } from './GameOver';
 
+import { withCookies, Cookies } from 'react-cookie';
+
 type PathParamsType = {
   id: string;
 };
 
-type GameProps = RouteComponentProps<PathParamsType> & {};
+type GameProps = RouteComponentProps<PathParamsType> & {
+  cookies: Cookies;
+};
 interface GameReactState {
   players: Player[];
   myId: number | 'pending';
@@ -20,15 +24,20 @@ interface GameReactState {
   gameId: string;
 }
 
+const PLAYER_COOKIE_ID = 'codebreaker-player-id';
+
 class Game extends React.Component<GameProps, GameReactState> {
   private socket: SocketIOClient.Socket | undefined;
 
   public constructor(props: GameProps) {
     super(props);
 
+    const { cookies } = this.props;
+    const existingId = cookies.get(PLAYER_COOKIE_ID);
+
     this.state = {
       players: [],
-      myId: 'pending',
+      myId: existingId === undefined ? 'pending' : existingId,
       gameId: this.props.match.params.id,
       game: 'pending',
     };
@@ -38,6 +47,7 @@ class Game extends React.Component<GameProps, GameReactState> {
     this.socket = io({
       query: {
         gameId: this.state.gameId,
+        userId: this.state.myId,
       },
     });
     //   this.socket = io(`/game/${this.props.match.params.id}`);
@@ -49,6 +59,7 @@ class Game extends React.Component<GameProps, GameReactState> {
       }));
     });
     this.socket.on('welcome', (player: Player) => {
+      this.props.cookies.set(PLAYER_COOKIE_ID, player.id);
       this.setState({
         myId: player.id,
       });
@@ -160,4 +171,4 @@ class Game extends React.Component<GameProps, GameReactState> {
   }
 }
 
-export default withRouter(Game);
+export default withCookies(withRouter(Game));

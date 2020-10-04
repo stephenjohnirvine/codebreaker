@@ -172,19 +172,47 @@ io.on("connection", (socket) => {
 
   const game_state = games[gameId];
 
-  if (game_state.state !== "LOBBY") {
-    logging("New connection to game in progress. Ignored");
-    return;
-  }
-
   socket.join(gameId);
 
-  logging("New connection");
+  let me = undefined;
+  let reconnect = false;
 
-  const me = {
-    name: autoPlayerNames[getRandomInt(autoPlayerNames.length - 1)],
-    id: crypto.randomBytes(10).toString("hex"),
-  };
+  if (game_state.state !== "LOBBY") {
+    // Is this player one that had previously disconnected
+
+    const userId = socket.handshake.query.userId;
+
+    if (userId === undefined) {
+      logging("New connection to game in progress");
+      return;
+    }
+
+    me = game_state.players.find((player) => player.id === userId);
+
+    if (me === undefined) {
+      const reason =
+        "cannot match incoming player with existing disconnected player";
+      logging(reason);
+
+      socket.emit("denied", reason);
+      return;
+    }
+
+    if (me.status === "connected") {
+      logging("player re-connected when already connected: ", me);
+    }
+
+    reconnect = true;
+    me.status = "connected";
+  } else {
+    me = {
+      name: autoPlayerNames[getRandomInt(autoPlayerNames.length - 1)],
+      id: crypto.randomBytes(10).toString("hex"),
+      status: "connected",
+    };
+  }
+
+  logging("New connection");
 
   logging("New player: ", me.id);
 
@@ -196,10 +224,14 @@ io.on("connection", (socket) => {
     socket.emit("new player", player);
   });
 
-  game_state.players.push(me);
-  logging("Current Players", game_state.players);
+  if (reconnect) {
+    io.to(gameId).emit("update player", me);
+  } else {
+    game_state.players.push(me);
+    io.to(gameId).emit("new player", me);
+  }
 
-  io.to(gameId).emit("new player", me);
+  logging("Current Players", game_state.players);
 
   socket.on("player name", (name) => {
     logging("Player name: ", name);
@@ -210,15 +242,18 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     logging("user disconnected");
-    io.to(gameId).emit("player left", me);
-    const index = game_state.players.indexOf(me);
-    if (index > -1) {
-      game_state.players.splice(index, 1);
+    const player = game_state.players.find((player) => player.id === me.id);
+    if (player === undefined) {
+      logging("unknown user disconnected, that's odd!");
+    } else {
+      player.status = "disconnected";
     }
+    io.to(gameId).emit("update player", player);
+
     logging("Current Players", game_state.players);
-    if (game_state.players.length === 0) {
+    if (!game_state.players.some((player) => player.status === "connected")) {
       // Game is empty, clean it up.
-      logging(`Game ${gameId} has no connections, destroying.`);
+      logging(`Game ${gameId} has no active connections, destroying.`);
       delete games[gameId];
     }
   });
