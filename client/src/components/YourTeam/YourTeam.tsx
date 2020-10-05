@@ -6,6 +6,7 @@ import {
   CompletedTurn,
   Transmission,
   Code,
+  Turn,
 } from '../../types/gameState';
 import { Cypher } from '../Cypher/Cypher';
 import { TransmissionHistory } from '../TransmissionHistory/TransmissionHistory';
@@ -15,6 +16,7 @@ import { TransmissionSent } from '../TransmissionSent/TransmissionSent';
 import { WaitingForTransmission } from '../WaitingForTransmission/WaitingForTransmission';
 import { GuessSubmitted } from '../GuessSubmitted/GuessSubmitted';
 import './YourTeam.css';
+import { ViewResults } from '../ViewResults/ViewResults';
 
 export type YourTeamProps = {
   game: GameState;
@@ -22,6 +24,46 @@ export type YourTeamProps = {
   me: PlayerID;
   onTransmit: (transmission: Transmission) => void;
   onGuess: (code: Code) => void;
+  onEndTurn: () => void;
+};
+
+type PlayerStatus =
+  | 'TRANSMITTING'
+  | 'WAITING'
+  | 'GUESSING'
+  | 'TRANSMITTED'
+  | 'GUESSED'
+  | 'VIEWING_RESULTS';
+
+const getPlayerStatus = (
+  currentTurn: Turn,
+  me: PlayerID,
+  team: TeamID
+): PlayerStatus => {
+  if (currentTurn.type === 'COMPLETE') {
+    return 'VIEWING_RESULTS';
+  }
+
+  if (currentTurn.encryptor === me) {
+    if (currentTurn.transmission === undefined) {
+      return 'TRANSMITTING';
+    }
+
+    return 'TRANSMITTED';
+  }
+
+  if (currentTurn.transmission === undefined) {
+    return 'WAITING';
+  }
+
+  if (
+    currentTurn.guesses === undefined ||
+    currentTurn.guesses[team] === undefined
+  ) {
+    return 'GUESSING';
+  }
+
+  return 'GUESSED';
 };
 
 export const YourTeam = ({
@@ -30,26 +72,11 @@ export const YourTeam = ({
   me,
   onTransmit,
   onGuess,
+  onEndTurn,
 }: YourTeamProps) => {
   const currentTurn = game.history[game.history.length - 1];
 
-  type PlayerStatus =
-    | 'TRANSMITTING'
-    | 'WAITING'
-    | 'GUESSING'
-    | 'TRANSMITTED'
-    | 'GUESSED';
-  const currentStatus: PlayerStatus =
-    currentTurn.encryptor === me
-      ? currentTurn.transmission === undefined
-        ? 'TRANSMITTING'
-        : 'TRANSMITTED'
-      : currentTurn.transmission === undefined
-      ? 'WAITING'
-      : currentTurn.guesses === undefined ||
-        currentTurn.guesses[team] === undefined
-      ? 'GUESSING'
-      : 'GUESSED';
+  const currentStatus: PlayerStatus = getPlayerStatus(currentTurn, me, team);
 
   let contextComponent;
   if (currentStatus === 'TRANSMITTING') {
@@ -81,6 +108,18 @@ export const YourTeam = ({
       <GuessSubmitted
         transmission={currentTurn.transmission as Transmission}
         guess={guesses[team] as Code}
+      />
+    );
+  } else if (currentStatus === 'VIEWING_RESULTS') {
+    const guesses = currentTurn.guesses;
+    const code = currentTurn.code;
+    contextComponent = (
+      <ViewResults
+        code={code}
+        transmission={currentTurn.transmission as Transmission}
+        guesses={guesses as { red: Code; blue: Code }}
+        transmitterTeam={currentTurn.encryptorTeam}
+        onEndTurn={onEndTurn}
       />
     );
   }

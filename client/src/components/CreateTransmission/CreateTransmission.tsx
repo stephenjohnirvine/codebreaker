@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Code, Transmission } from '../../types/gameState';
 import './CreateTransmission.css';
+import { ArrayVis } from '../Code/ArrayVis';
 
 export type CreateTransmissionProps = {
   code: Code;
@@ -30,7 +31,8 @@ export const CreateTransmission = ({
   return (
     <div className="transmission">
       <div className="title transRow">
-        Code:<div className="code">{code.join(' ')}</div>
+        Code:
+        <ArrayVis data={code} />
       </div>
 
       <div className="transRows">

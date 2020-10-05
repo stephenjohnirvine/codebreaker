@@ -1,6 +1,7 @@
 import React from 'react';
 import { Code, Transmission } from '../../types/gameState';
 import './TransmissionSent.css';
+import { ArrayVis } from '../Code/ArrayVis';
 
 type TransmissionSentProps = {
   code: Code;
@@ -15,11 +16,11 @@ export const TransmissionSent = ({
     <div className="transSentSub">
       <div className="transSentSubRow">
         Code was:
-        <div className="transSentSubCode">[{code.join(',')}]</div>
+        <ArrayVis data={code} />
       </div>
       <div className="transSentSubRow">
         You transmitted:
-        <div className="transSentSubCode">[{transmission.join(',')}]</div>
+        <ArrayVis data={transmission} />
       </div>
     </div>
   );

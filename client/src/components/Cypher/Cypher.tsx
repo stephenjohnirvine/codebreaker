@@ -11,7 +11,7 @@ export const Cypher = ({ cypher }: CypherProps) => {
 
   return (
     <div className="cypher">
-      <div className="cypherTitle">Your Cypher</div>
+      <div className="cypherTitle">Your Team{"'"}s Cypher</div>
       <div className="cypherRow">
         {arr.map((num) => (
           <div className="cypherIndex cypherRowItem" key={num}>{`${

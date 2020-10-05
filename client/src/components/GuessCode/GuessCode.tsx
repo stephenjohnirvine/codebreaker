@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Code, Transmission } from '../../types/gameState';
 import './GuessCode.css';
+import { ArrayVis } from '../Code/ArrayVis';
 
 export type GuessCodeProps = {
   transmission: Transmission;
@@ -51,7 +52,8 @@ export const GuessCode = ({ transmission, onGuess }: GuessCodeProps) => {
   return (
     <div className="transmission">
       <div className="title transRow">
-        Transmission:<div className="code">{transmission.join(' ')}</div>
+        Transmission:
+        <ArrayVis data={transmission} />
       </div>
 
       <div className="transRows">

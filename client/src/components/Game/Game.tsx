@@ -98,6 +98,13 @@ class Game extends React.Component<GameProps, GameReactState> {
     this.socket.emit('start game');
   }
 
+  private onEndTurn() {
+    if (this.socket === undefined) {
+      throw new Error('Callback called before socket connection established');
+    }
+    this.socket.emit('end turn');
+  }
+
   private onTeamGuess(team: TeamID, guess: Code) {
     if (this.socket === undefined) {
       throw new Error('Callback called before socket connection established');
@@ -142,6 +149,7 @@ class Game extends React.Component<GameProps, GameReactState> {
           myId={this.state.myId}
           onTeamGuess={this.onTeamGuess.bind(this)}
           onTransmit={this.onTransmit.bind(this)}
+          onEndTurn={this.onEndTurn.bind(this)}
         />
       );
     } else if ((this.state.game as GameState).state === 'FINISHED') {

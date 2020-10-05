@@ -177,3 +177,25 @@ GuessSubmitted.args = {
   },
   myId: 'p2',
 };
+
+export const EndOfTurn = Template.bind({});
+EndOfTurn.args = {
+  game: {
+    ...gameBase,
+    history: [
+      ...gameBase.history,
+      {
+        code: [2, 3, 1],
+        encryptor: 'p1',
+        encryptorTeam: 'blue',
+        transmission: ['battery', 'horse', 'staple'],
+        guesses: {
+          blue: [2, 3, 1],
+          red: [2, 3, 1],
+        },
+        type: 'COMPLETE',
+      },
+    ],
+  },
+  myId: 'p2',
+};

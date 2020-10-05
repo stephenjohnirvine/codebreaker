@@ -1,0 +1,51 @@
+.resultMain {
+  padding: 5px;
+  margin: 5px;
+  border-radius: 3px;
+  background-color: lightgray;
+}
+
+.resultShared {
+  display: inline;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 3px;
+}
+
+.resultTransFail {
+  background-color: darkred;
+  color: antiquewhite;
+}
+
+.resultInterception {
+  background-color: green;
+  color: antiquewhite;
+}
+
+.resultEndRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resultEndTurn {
+  flex-grow: 1;
+  padding: 7px;
+  border: 0.1em solid;
+  margin: 5px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  color: black;
+  background-color: #00740a23;
+  text-align: center;
+  transition: all 0.2s;
+  max-width: 300px;
+}
+
+.resultEndTurn:hover {
+  color: whitesmoke;
+  background-color: darkgreen;
+}

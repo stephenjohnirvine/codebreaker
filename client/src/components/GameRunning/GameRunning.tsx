@@ -17,6 +17,7 @@ export type GameRunningProps = {
   myId: PlayerID;
   onTeamGuess: (team: TeamID, guess: Code) => void;
   onTransmit: (transmission: Transmission) => void;
+  onEndTurn: () => void;
 };
 
 export const GameRunning = ({
@@ -24,6 +25,7 @@ export const GameRunning = ({
   myId,
   onTransmit,
   onTeamGuess,
+  onEndTurn,
 }: GameRunningProps) => {
   const myTeam = game.red.players.find((player) => player === myId)
     ? 'red'
@@ -40,6 +42,7 @@ export const GameRunning = ({
           team={myTeam}
           onGuess={(code: Code) => onTeamGuess(myTeam, code)}
           onTransmit={onTransmit}
+          onEndTurn={onEndTurn}
         />
       </div>
       <div className="mainPanel">

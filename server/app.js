@@ -21,7 +21,7 @@ const logging = (...args) => {
 
 app.use(express.static("public"));
 
-const word_list = [
+const globalWordList = [
   "water",
   "fish",
   "red",
@@ -32,23 +32,33 @@ const word_list = [
   "house",
   "tree",
   "sky",
+  "spoon",
   "bottle",
   "computer",
   "phone",
   "plane",
+  "gorilla",
   "boat",
   "submarine",
   "chair",
+  "fire",
   "hat",
+  "metal",
+  "potato",
   "plate",
+  "game",
   "fork",
   "knife",
   "hat",
+  "notebook",
+  "ladder",
 ];
+Object.freeze(globalWordList);
 
 const autoPlayerNames = [
   "Adam",
   "Anna",
+  "Jojo",
   "Alice",
   "Steve",
   "Pernille",
@@ -59,13 +69,16 @@ const autoPlayerNames = [
   "Linda",
   "Lucy",
   "Billy",
+  "Sphinx",
   "Alex",
   "Sarah",
 ];
+Object.freeze(autoPlayerNames);
 
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
+
 const getCode = () => {
   const possible = [1, 2, 3, 4];
   const code = [];
@@ -79,43 +92,48 @@ const getCode = () => {
 
   return code;
 };
-const getRandomWord = () => {
-  const index = getRandomInt(word_list.length - 1);
-  const word = word_list[index];
-  word_list.splice(index, 1);
+
+const getRandomWord = (myWordList) => {
+  const index = getRandomInt(myWordList.length - 1);
+  const word = myWordList[index];
+  myWordList.splice(index, 1);
   return word;
 };
 
-const makeNewGameState = () => ({
-  players: [],
-  current_transmitter: undefined,
-  state: "LOBBY",
-  red: {
-    interceptions: 0,
-    transmission_fails: 0,
-    last_transmitter: undefined,
-    cypher: [
-      getRandomWord(),
-      getRandomWord(),
-      getRandomWord(),
-      getRandomWord(),
-    ],
+const makeNewGameState = () => {
+  const myWordList = [...globalWordList];
+
+  return {
     players: [],
-  },
-  blue: {
-    interceptions: 0,
-    transmission_fails: 0,
-    last_transmitter: undefined,
-    cypher: [
-      getRandomWord(),
-      getRandomWord(),
-      getRandomWord(),
-      getRandomWord(),
-    ],
-    players: [],
-  },
-  history: [],
-});
+    current_transmitter: undefined,
+    state: "LOBBY",
+    red: {
+      interceptions: 0,
+      transmission_fails: 0,
+      last_transmitter: undefined,
+      cypher: [
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+      ],
+      players: [],
+    },
+    blue: {
+      interceptions: 0,
+      transmission_fails: 0,
+      last_transmitter: undefined,
+      cypher: [
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+        getRandomWord(myWordList),
+      ],
+      players: [],
+    },
+    history: [],
+  };
+};
 const newTurn = (game_state) => {
   const firstTurn = game_state.history.length === 0;
   if (firstTurn) {
@@ -131,13 +149,9 @@ const newTurn = (game_state) => {
   const lastTeam = previousTurn.encryptorTeam;
   const nextTeam = lastTeam === "red" ? "blue" : "red";
 
-  let previousEncryptor = game_state.history.reverse().find((turn) => {
-    turn.encryptorTeam === nextTeam;
-  })?.encryptor;
-  previousEncryptor =
-    previousEncryptor === undefined
-      ? game_state[nextTeam].players[0]
-      : previousEncryptor;
+  const previousEncryptor =
+    game_state.history.reverse().find((turn) => turn.encryptorTeam === nextTeam)
+      ?.encryptor ?? game_state[nextTeam].players[0];
 
   const teamMemberIds = game_state[nextTeam].players;
   const lastEncryptorIndex = teamMemberIds.findIndex(
@@ -308,41 +322,52 @@ io.on("connection", (socket) => {
       game_state[team].transmission_fails =
         game_state[team].transmission_fails + 1;
     }
-
     // If  both teams have guessed then this is the end of the turn
     if (
       currentTurn.guesses.red !== undefined &&
       currentTurn.guesses.blue !== undefined
     ) {
       currentTurn.type = "COMPLETE";
+    }
 
-      let blueWin = false;
-      let redWin = false;
-      // If the current number of turns is even, then it's a fair time to check the scores
-      // and see if a team has won.
-      if (game_state.history.length % 2 === 0) {
-        if (
-          game_state["blue"].interceptions >= 2 ||
-          game_state["red"].transmission_fails >= 2
-        ) {
-          blueWin = true;
-        }
-        if (
-          game_state["red"].interceptions >= 2 ||
-          game_state["blue"].transmission_fails >= 2
-        ) {
-          redWin = true;
-        }
-      }
+    logging("Game State: ", JSON.stringify(game_state, null, 4));
+    io.to(gameId).emit("game state", game_state);
+  });
 
-      if (redWin || blueWin) {
-        // The game is over.
-        game_state.state = "FINISHED";
-        game_state.winner =
-          redWin && blueWin ? "draw" : redWin ? "red" : "blue";
-      } else {
-        game_state.history.push(newTurn(game_state));
+  socket.on("end turn", () => {
+    const currentTurn = game_state.history[game_state.history.length - 1];
+
+    // The turn should be complete
+    if (currentTurn.type !== "COMPLETE") {
+      logging("attempting to end turn when not complete");
+      return;
+    }
+
+    let blueWin = false;
+    let redWin = false;
+    // If the current number of turns is even, then it's a fair time to check the scores
+    // and see if a team has won.
+    if (game_state.history.length % 2 === 0) {
+      if (
+        game_state["blue"].interceptions >= 2 ||
+        game_state["red"].transmission_fails >= 2
+      ) {
+        blueWin = true;
       }
+      if (
+        game_state["red"].interceptions >= 2 ||
+        game_state["blue"].transmission_fails >= 2
+      ) {
+        redWin = true;
+      }
+    }
+
+    if (redWin || blueWin) {
+      // The game is over.
+      game_state.state = "FINISHED";
+      game_state.winner = redWin && blueWin ? "draw" : redWin ? "red" : "blue";
+    } else {
+      game_state.history.push(newTurn(game_state));
     }
 
     logging("Game State: ", JSON.stringify(game_state, null, 4));
