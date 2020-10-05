@@ -27,8 +27,8 @@ export const GameLobby = (props: GameLobbyProps) => {
         Game link:
         <input
           disabled
-          value="http://localhost:3000/lobby/1"
-          style={{ width: '300px' }}
+          value={window.location.href}
+          style={{ width: '500px' }}
         />
       </p>
       <p>
