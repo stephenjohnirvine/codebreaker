@@ -14,6 +14,7 @@ import { GuessCode } from '../GuessCode/GuessCode';
 import { TransmissionSent } from '../TransmissionSent/TransmissionSent';
 import { WaitingForTransmission } from '../WaitingForTransmission/WaitingForTransmission';
 import { GuessSubmitted } from '../GuessSubmitted/GuessSubmitted';
+import './YourTeam.css';
 
 export type YourTeamProps = {
   game: GameState;
@@ -90,7 +91,7 @@ export const YourTeam = ({
 
   return (
     <div>
-      <div>You are on the {team} team!</div>
+      <div className={`teamTitle ${team}Team`}>You are on the {team} team!</div>
       <Cypher cypher={game[team].cypher} />
       {contextComponent}
       <TransmissionHistory transmissions={teamTurnHistory} />

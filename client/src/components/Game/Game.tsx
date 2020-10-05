@@ -71,13 +71,21 @@ class Game extends React.Component<GameProps, GameReactState> {
       });
     });
     this.socket.on('update player', (player: Player) => {
-      const others = this.state.players.filter((p) => p.id !== player.id);
+      if (this.state.game === 'pending') {
+        return;
+      }
+
+      const others = this.state.game.players.filter((p) => p.id !== player.id);
       this.setState({
         players: [...others, player],
       });
     });
     this.socket.on('player left', (player: Player) => {
-      const others = this.state.players.filter((p) => p.id !== player.id);
+      if (this.state.game === 'pending') {
+        return;
+      }
+
+      const others = this.state.game.players.filter((p) => p.id !== player.id);
       this.setState({
         players: others,
       });
@@ -137,10 +145,10 @@ class Game extends React.Component<GameProps, GameReactState> {
     const notFullyConnected =
       this.socket === undefined ||
       this.state.myId === 'pending' ||
-      this.state.players.findIndex(
+      this.state.game === 'pending' ||
+      this.state.game.players.findIndex(
         (player) => player.id === this.state.myId
-      ) === -1 ||
-      this.state.game === 'pending';
+      ) === -1;
 
     let child;
     if (notFullyConnected) {
@@ -148,7 +156,7 @@ class Game extends React.Component<GameProps, GameReactState> {
     } else if ((this.state.game as GameState).state === 'LOBBY') {
       child = (
         <GameLobby
-          players={this.state.players}
+          players={(this.state.game as GameState).players}
           myId={this.state.myId}
           onNameChange={this.onNameChange.bind(this)}
           onGameStart={this.onGameStart.bind(this)}
@@ -158,7 +166,6 @@ class Game extends React.Component<GameProps, GameReactState> {
       child = (
         <GameRunning
           game={this.state.game as GameState}
-          players={this.state.players}
           myId={this.state.myId}
           onTeamGuess={this.onTeamGuess.bind(this)}
           onTransmit={this.onTransmit.bind(this)}
@@ -173,7 +180,6 @@ class Game extends React.Component<GameProps, GameReactState> {
     }
 
     return <div>{child}</div>;
-    // <Teams players={this.state.players} />
   }
 }
 

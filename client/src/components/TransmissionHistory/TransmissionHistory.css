@@ -1,0 +1,26 @@
+.transmissionHistory {
+  background-color: lightgray;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 10px;
+}
+
+.historyRow {
+  display: flex;
+}
+
+.historyRowItem {
+  flex-grow: 1;
+  flex-basis: 0;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  text-align: center;
+}
+
+.historyIndex {
+  background-color: slategray;
+}
+.historyEntry {
+  background-color: whitesmoke;
+}

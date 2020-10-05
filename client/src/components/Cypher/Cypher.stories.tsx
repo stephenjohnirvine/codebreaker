@@ -10,7 +10,7 @@ export default {
 
 const Template: Story<CypherProps> = (args) => <Cypher {...args} />;
 
-export const ShowCypher = Template.bind({});
-ShowCypher.args = {
+export const TeamCypher = Template.bind({});
+TeamCypher.args = {
   cypher: ['red', 'yellow', 'green', 'blue'],
 };

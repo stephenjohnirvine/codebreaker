@@ -1,13 +1,17 @@
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .parent {
   display: flex;
 }
 
-.yourTeam {
+.mainPanel {
   flex-grow: 1;
-}
-
-.otherTeam {
-  flex-grow: 1;
+  background-color: rgb(51, 51, 51);
+  margin: 5px;
+  border-radius: 5px;
+  padding: 10px;
 }
 
 .sidePanel {
@@ -15,4 +19,5 @@
   background-color: lightblue;
   border-radius: 3px;
   padding: 10px;
+  margin: 5px;
 }

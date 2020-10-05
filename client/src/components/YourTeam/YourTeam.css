@@ -1,0 +1,14 @@
+.teamTitle {
+  border-radius: 5px;
+  margin: 5px;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.redTeam {
+  background-color: red;
+}
+
+.blueTeam {
+  background-color: blue;
+}

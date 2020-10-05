@@ -1,5 +1,6 @@
 import React from 'react';
 import { Transmission, Code } from '../../types/gameState';
+import './TransmissionHistory.css';
 
 export type CompletedTransmision = {
   code: Code;
@@ -33,29 +34,32 @@ export const TransmissionHistory = ({ transmissions }: TeamHistoryProps) => {
     }
   );
 
+  const fourArr = [0, 1, 2, 3];
+
   return (
-    <div>
-      <h4>Team transmission history</h4>
-      <table>
-        <thead>
-          <tr>
-            <td>1</td>
-            <td>2</td>
-            <td>3</td>
-            <td>4</td>
-          </tr>
-        </thead>
-        <tbody>
-          {tableContents.map((row, index) => (
-            <tr key={index}>
-              <td>{row[0]}</td>
-              <td>{row[1]}</td>
-              <td>{row[2]}</td>
-              <td>{row[3]}</td>
-            </tr>
+    <div className="transmissionHistory">
+      <p>Team transmission history</p>
+      <div className="historyRow">
+        {fourArr.map((num) => (
+          <div className="historyIndex historyRowItem" key={num}>{`${
+            num + 1
+          }`}</div>
+        ))}
+      </div>
+      {tableContents.map((row, index) => (
+        <div key={index} className="historyRow">
+          {fourArr.map((num) => (
+            <div
+              className={`${
+                row[num] === '' ? '' : 'historyEntry'
+              } historyRowItem`}
+              key={num}
+            >
+              {row[num]}
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      ))}
     </div>
   );
 };

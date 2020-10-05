@@ -6,7 +6,6 @@ import {
   Code,
   PlayerID,
 } from '../../types/gameState';
-import { Player } from '../../types/player';
 import { YourTeam } from '../YourTeam/YourTeam';
 import { OtherTeam } from '../OtherTeam/OtherTeam';
 import { GameStatus } from '../GameStatus/GameStatus';
@@ -14,7 +13,6 @@ import { Players } from '../Players/Players';
 import './GameRunning.css';
 
 export type GameRunningProps = {
-  players: Player[];
   game: GameState;
   myId: PlayerID;
   onTeamGuess: (team: TeamID, guess: Code) => void;
@@ -35,7 +33,7 @@ export const GameRunning = ({
 
   return (
     <div className="parent">
-      <div className="yourTeam">
+      <div className="mainPanel">
         <YourTeam
           me={myId}
           game={game}
@@ -44,7 +42,7 @@ export const GameRunning = ({
           onTransmit={onTransmit}
         />
       </div>
-      <div className="otherTeam">
+      <div className="mainPanel">
         <OtherTeam team={otherTeam} game={game} />
       </div>
       <div className="sidePanel">

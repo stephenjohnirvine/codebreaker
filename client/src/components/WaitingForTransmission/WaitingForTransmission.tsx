@@ -1,5 +1,6 @@
 import React from 'react';
+import './WaitingForTransmission.css';
 
 export const WaitingForTransmission = () => (
-  <div>Waiting for transmission...</div>
+  <div className="waitingForTransmission">Waiting for transmission...</div>
 );
