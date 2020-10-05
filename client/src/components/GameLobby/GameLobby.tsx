@@ -44,6 +44,7 @@ export const GameLobby = (props: GameLobbyProps) => {
       <button disabled={!gameCanStart} onClick={props.onGameStart}>
         Start the Game!
       </button>
+      <p>(You need 4 players to start)</p>
     </div>
   );
 };
