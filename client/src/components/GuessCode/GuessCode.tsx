@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Code, Transmission } from '../../types/gameState';
+import './GuessCode.css';
 
-type GuessCodeProps = {
+export type GuessCodeProps = {
   transmission: Transmission;
   onGuess: (code: Code) => void;
 };
@@ -26,6 +27,16 @@ export const GuessCode = ({ transmission, onGuess }: GuessCodeProps) => {
     };
   };
 
+  type ArrRow = {
+    transmission: string;
+    setter: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  };
+  const asArray: ArrRow[] = [
+    { transmission: transmission[0], setter: setCode(setCode0) },
+    { transmission: transmission[1], setter: setCode(setCode1) },
+    { transmission: transmission[2], setter: setCode(setCode2) },
+  ];
+
   const validInput = (input: number | undefined): boolean => {
     if (input === undefined) {
       return false;
@@ -38,6 +49,34 @@ export const GuessCode = ({ transmission, onGuess }: GuessCodeProps) => {
     validInput(code0) && validInput(code1) && validInput(code2);
 
   return (
+    <div className="transmission">
+      <div className="title row">
+        Transmission:<div className="code">{transmission.join(' ')}</div>
+      </div>
+
+      <div className="rows">
+        {asArray.map(({ transmission, setter }: ArrRow, index: number) => (
+          <div className="row" key={index}>
+            <div className="transmissionElement">{transmission}</div>
+            <input className="codeEntry" onChange={setter}></input>
+          </div>
+        ))}
+      </div>
+
+      <div className="row">
+        <button
+          className="button"
+          id="send"
+          onClick={() => onGuess([code0, code1, code2] as Code)}
+          disabled={!validInputs}
+        >
+          Decrypt Code
+        </button>
+      </div>
+    </div>
+  );
+
+  /*
     <div>
       <table>
         <thead>
@@ -80,4 +119,5 @@ export const GuessCode = ({ transmission, onGuess }: GuessCodeProps) => {
       </table>
     </div>
   );
+  */
 };

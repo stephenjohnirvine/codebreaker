@@ -14,7 +14,7 @@ export const OtherTeam = ({ game, team }: OtherTeamProps) => {
 
   return (
     <div>
-      <h3>Other Team History</h3>
+      <div className={`teamTitle ${team}Team`}>The {team} team</div>
       <TransmissionHistory transmissions={teamTurnHistory} />
     </div>
   );

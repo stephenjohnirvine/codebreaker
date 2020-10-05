@@ -1,5 +1,6 @@
 import React from 'react';
 import { Code, Transmission } from '../../types/gameState';
+import './GuessSubmitted.css';
 
 type GuessSubmittedProps = {
   guess: Code;
@@ -11,32 +12,15 @@ export const GuessSubmitted = ({
   transmission,
 }: GuessSubmittedProps) => {
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <td colSpan={3}>Guess Submitted:</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{transmission[0]}</td>
-            <td>{transmission[1]}</td>
-            <td>{transmission[2]}</td>
-          </tr>
-          <tr>
-            <td>
-              <input disabled value={guess[0]} />
-            </td>
-            <td>
-              <input disabled value={guess[1]} />
-            </td>
-            <td>
-              <input disabled value={guess[2]} />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="guessSub">
+      <div className="guessSubRow">
+        Transmission was:{' '}
+        <div className="guessSubCode">[{transmission.join(',')}]</div>
+      </div>
+      <div className="guessSubRow">
+        Your team submitted code:{' '}
+        <div className="guessSubCode">[{guess.join(',')}]</div>
+      </div>
     </div>
   );
 };

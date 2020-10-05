@@ -1,0 +1,14 @@
+.transmissionElement {
+  margin: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: lightgray;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.codeEntry {
+  margin: 5px;
+  padding: 4px 0px;
+  width: 30px;
+}

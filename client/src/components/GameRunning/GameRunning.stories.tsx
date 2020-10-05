@@ -61,7 +61,47 @@ const gameBase: GameState = {
   ],
   state: 'RUNNING',
   winner: undefined,
-  history: [],
+  history: [
+    {
+      code: [2, 3, 1],
+      encryptor: 'p1',
+      encryptorTeam: 'blue',
+      transmission: ['battery', 'horse', 'staple'],
+      guesses: {
+        blue: [2, 3, 1],
+        red: [2, 3, 1],
+      },
+      type: 'COMPLETE',
+    },
+    {
+      code: [1, 2, 3],
+      encryptor: 'p3',
+      encryptorTeam: 'red',
+      transmission: ['silly', 'old', 'sam'],
+      guesses: {
+        blue: [2, 3, 1],
+        red: [2, 3, 1],
+      },
+      type: 'COMPLETE',
+    },
+  ],
+};
+
+export const WaitingForTransmission = Template.bind({});
+WaitingForTransmission.args = {
+  game: {
+    ...gameBase,
+    history: [
+      ...gameBase.history,
+      {
+        code: [2, 3, 1],
+        encryptor: 'p1',
+        encryptorTeam: 'blue',
+        type: 'INCOMPLETE',
+      },
+    ],
+  },
+  myId: 'p2',
 };
 
 export const Transmitting = Template.bind({});
@@ -69,12 +109,71 @@ Transmitting.args = {
   game: {
     ...gameBase,
     history: [
+      ...gameBase.history,
       {
         code: [2, 3, 1],
         encryptor: 'p1',
-        encryptorTeam: 'red',
+        encryptorTeam: 'blue',
         type: 'INCOMPLETE',
       },
     ],
   },
+  myId: 'p1',
+};
+
+export const Transmitted = Template.bind({});
+Transmitted.args = {
+  game: {
+    ...gameBase,
+    history: [
+      ...gameBase.history,
+      {
+        code: [2, 3, 1],
+        encryptor: 'p1',
+        encryptorTeam: 'blue',
+        transmission: ['battery', 'horse', 'staple'],
+        type: 'INCOMPLETE',
+      },
+    ],
+  },
+  myId: 'p1',
+};
+
+export const Decoding = Template.bind({});
+Decoding.args = {
+  game: {
+    ...gameBase,
+    history: [
+      ...gameBase.history,
+      {
+        code: [2, 3, 1],
+        encryptor: 'p1',
+        encryptorTeam: 'blue',
+        transmission: ['battery', 'horse', 'staple'],
+        type: 'INCOMPLETE',
+      },
+    ],
+  },
+  myId: 'p2',
+};
+
+export const GuessSubmitted = Template.bind({});
+GuessSubmitted.args = {
+  game: {
+    ...gameBase,
+    history: [
+      ...gameBase.history,
+      {
+        code: [2, 3, 1],
+        encryptor: 'p1',
+        encryptorTeam: 'blue',
+        transmission: ['battery', 'horse', 'staple'],
+        guesses: {
+          blue: [2, 3, 1],
+        },
+        type: 'INCOMPLETE',
+      },
+    ],
+  },
+  myId: 'p2',
 };

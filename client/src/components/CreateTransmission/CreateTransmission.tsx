@@ -28,7 +28,7 @@ export const CreateTransmission = ({
   const validEncodings = code0 !== '' && code1 !== '' && code2 !== '';
 
   return (
-    <div>
+    <div className="transmission">
       <div className="title row">
         Code:<div className="code">{code.join(' ')}</div>
       </div>

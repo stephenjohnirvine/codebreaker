@@ -1,5 +1,6 @@
 import React from 'react';
 import { Code, Transmission } from '../../types/gameState';
+import './TransmissionSent.css';
 
 type TransmissionSentProps = {
   code: Code;
@@ -11,32 +12,15 @@ export const TransmissionSent = ({
   transmission,
 }: TransmissionSentProps) => {
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <td colSpan={3}>Sent Transmission:</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{code[0]}</td>
-            <td>{code[1]}</td>
-            <td>{code[2]}</td>
-          </tr>
-          <tr>
-            <td>
-              <input disabled value={transmission[0]} />
-            </td>
-            <td>
-              <input disabled value={transmission[1]} />
-            </td>
-            <td>
-              <input disabled value={transmission[2]} />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="transSentSub">
+      <div className="transSentSubRow">
+        Code was:
+        <div className="transSentSubCode">[{code.join(',')}]</div>
+      </div>
+      <div className="transSentSubRow">
+        You transmitted:
+        <div className="transSentSubCode">[{transmission.join(',')}]</div>
+      </div>
     </div>
   );
 };

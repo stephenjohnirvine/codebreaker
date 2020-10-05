@@ -38,7 +38,7 @@ export const TransmissionHistory = ({ transmissions }: TeamHistoryProps) => {
 
   return (
     <div className="transmissionHistory">
-      <p>Team transmission history</p>
+      <div className="historyTitle">Transmission history</div>
       <div className="historyRow">
         {fourArr.map((num) => (
           <div className="historyIndex historyRowItem" key={num}>{`${

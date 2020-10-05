@@ -1,0 +1,21 @@
+.transSentSub {
+  margin: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: lightgray;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.transSentSubRow {
+  display: flex;
+  align-items: center;
+}
+
+.transSentSubCode {
+  margin: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: white;
+  text-align: center;
+}

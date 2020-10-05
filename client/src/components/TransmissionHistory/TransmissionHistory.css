@@ -5,6 +5,11 @@
   padding: 10px;
 }
 
+.historyTitle {
+  font-weight: bold;
+  padding: 5px;
+}
+
 .historyRow {
   display: flex;
 }
