@@ -50,20 +50,20 @@ export const GuessCode = ({ transmission, onGuess }: GuessCodeProps) => {
 
   return (
     <div className="transmission">
-      <div className="title row">
+      <div className="title transRow">
         Transmission:<div className="code">{transmission.join(' ')}</div>
       </div>
 
-      <div className="rows">
+      <div className="transRows">
         {asArray.map(({ transmission, setter }: ArrRow, index: number) => (
-          <div className="row" key={index}>
+          <div className="transRow" key={index}>
             <div className="transmissionElement">{transmission}</div>
             <input className="codeEntry" onChange={setter}></input>
           </div>
         ))}
       </div>
 
-      <div className="row">
+      <div className="transRow">
         <button
           className="button"
           id="send"

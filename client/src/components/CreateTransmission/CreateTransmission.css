@@ -12,12 +12,12 @@
   background-color: lightgray;
 }
 
-.row {
+.transRow {
   display: flex;
   align-items: center;
 }
 
-.rows {
+.transRows {
   margin: 10px 0px;
 }
 
@@ -43,7 +43,6 @@
 
 .button {
   flex-grow: 1;
-  display: inline-block;
   padding: 7px;
   border: 0.1em solid;
   margin: 0px 5px 5px 5px;

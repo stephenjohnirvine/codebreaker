@@ -29,13 +29,13 @@ export const CreateTransmission = ({
 
   return (
     <div className="transmission">
-      <div className="title row">
+      <div className="title transRow">
         Code:<div className="code">{code.join(' ')}</div>
       </div>
 
-      <div className="rows">
+      <div className="transRows">
         {asArray.map(({ code, setter }: ArrRow, index: number) => (
-          <div className="row" key={index}>
+          <div className="transRow" key={index}>
             <div className="codeDigit">{code}</div>
             <input
               className="digitEncoding"
@@ -45,7 +45,7 @@ export const CreateTransmission = ({
         ))}
       </div>
 
-      <div className="row">
+      <div className="transRow">
         <button
           className="button"
           id="send"

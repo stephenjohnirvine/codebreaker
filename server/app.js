@@ -7,7 +7,12 @@ const crypto = require("crypto");
 
 const PORT = process.env.PORT || 3001;
 const DEVELOPMENT = process.env.NODE_ENV.toLowerCase() === "development";
-
+console.log(`NODE_ENV=${process.env.NODE_ENV}`);
+if (DEVELOPMENT) {
+  console.log(`Starting in DEVELOPMENT environment`);
+} else {
+  console.log(`Starting in PRODUCTION environment`);
+}
 const logging = (...args) => {
   if (DEVELOPMENT) {
     console.log(...args);
@@ -212,24 +217,14 @@ io.on("connection", (socket) => {
     };
   }
 
-  logging("New connection");
-
-  logging("New player: ", me.id);
-
   socket.emit("welcome", me);
-  socket.emit("game state", game_state);
-  //socket.emit('cypher', game_state[me.team].cypher);
 
-  game_state.players.forEach((player) => {
-    socket.emit("new player", player);
-  });
-
-  if (reconnect) {
-    io.to(gameId).emit("update player", me);
-  } else {
+  if (!reconnect) {
+    logging("New player: ", me.id);
     game_state.players.push(me);
-    io.to(gameId).emit("new player", me);
   }
+
+  io.to(gameId).emit("game state", game_state);
 
   logging("Current Players", game_state.players);
 
@@ -237,18 +232,26 @@ io.on("connection", (socket) => {
     logging("Player name: ", name);
     me.name = name;
 
-    io.to(gameId).emit("update player", me);
+    io.to(gameId).emit("game state", game_state);
   });
 
   socket.on("disconnect", () => {
     logging("user disconnected");
-    const player = game_state.players.find((player) => player.id === me.id);
-    if (player === undefined) {
+    const playerIdx = game_state.players.findIndex(
+      (player) => player.id === me.id
+    );
+    if (playerIdx === -1) {
       logging("unknown user disconnected, that's odd!");
     } else {
-      player.status = "disconnected";
+      if (game_state.state !== "LOBBY") {
+        // If the game is started, we want to allow people to reconnect
+        game_state.players[playerIdx].status = "disconnected";
+      } else {
+        // Just remove people in the lobby if they drop.
+        game_state.players.splice(playerIdx, 1);
+      }
     }
-    io.to(gameId).emit("update player", player);
+    io.to(gameId).emit("game state", game_state);
 
     logging("Current Players", game_state.players);
     if (!game_state.players.some((player) => player.status === "connected")) {
@@ -374,5 +377,5 @@ app.get("*", function (req, res) {
 });
 
 http.listen(PORT, () => {
-  logging(`listening on *:${PORT}`);
+  console.log(`listening on *:${PORT}`);
 });

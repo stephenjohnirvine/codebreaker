@@ -24,7 +24,6 @@ type GameProps = RouteComponentProps<PathParamsType> & {
   cookies: Cookies;
 };
 interface GameReactState {
-  players: Player[];
   myId: PlayerID | 'pending';
   game: GameState | 'pending';
   gameId: string;
@@ -42,7 +41,6 @@ class Game extends React.Component<GameProps, GameReactState> {
     const existingId = cookies.get(PLAYER_COOKIE_ID);
 
     this.state = {
-      players: [],
       myId: existingId === undefined ? 'pending' : existingId,
       gameId: this.props.match.params.id,
       game: 'pending',
@@ -59,35 +57,10 @@ class Game extends React.Component<GameProps, GameReactState> {
     //   this.socket = io(`/game/${this.props.match.params.id}`);
     window.addEventListener('beforeunload', this.componentCleanup);
 
-    this.socket.on('new player', (player: Player) => {
-      this.setState((state) => ({
-        players: [...state.players, player],
-      }));
-    });
     this.socket.on('welcome', (player: Player) => {
       this.props.cookies.set(PLAYER_COOKIE_ID, player.id);
       this.setState({
         myId: player.id,
-      });
-    });
-    this.socket.on('update player', (player: Player) => {
-      if (this.state.game === 'pending') {
-        return;
-      }
-
-      const others = this.state.game.players.filter((p) => p.id !== player.id);
-      this.setState({
-        players: [...others, player],
-      });
-    });
-    this.socket.on('player left', (player: Player) => {
-      if (this.state.game === 'pending') {
-        return;
-      }
-
-      const others = this.state.game.players.filter((p) => p.id !== player.id);
-      this.setState({
-        players: others,
       });
     });
     this.socket.on('game state', (game: GameState) => {
