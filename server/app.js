@@ -144,7 +144,7 @@ const newTurn = (game_state) => {
     (playerId) => playerId === previousEncryptor
   );
   const nextEncryptorId =
-    teamMemberIds[lastEncryptorIndex + (1 % teamMemberIds.length)];
+    teamMemberIds[(lastEncryptorIndex + 1) % teamMemberIds.length];
 
   return {
     encryptor: nextEncryptorId,
