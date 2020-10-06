@@ -4,6 +4,7 @@ const path = require("path");
 var http = require("http").createServer(app);
 const io = require("socket.io")(http);
 const crypto = require("crypto");
+const fs = require("fs");
 
 const PORT = process.env.PORT || 3001;
 const DEVELOPMENT = process.env.NODE_ENV.toLowerCase() === "development";
@@ -21,38 +22,8 @@ const logging = (...args) => {
 
 app.use(express.static("public"));
 
-const globalWordList = [
-  "water",
-  "fish",
-  "red",
-  "yellow",
-  "green",
-  "blue",
-  "car",
-  "house",
-  "tree",
-  "sky",
-  "spoon",
-  "bottle",
-  "computer",
-  "phone",
-  "plane",
-  "gorilla",
-  "boat",
-  "submarine",
-  "chair",
-  "fire",
-  "hat",
-  "metal",
-  "potato",
-  "plate",
-  "game",
-  "fork",
-  "knife",
-  "hat",
-  "notebook",
-  "ladder",
-];
+const text = fs.readFileSync("./wordlist.txt").toString("utf-8");
+const globalWordList = text.split("\n");
 Object.freeze(globalWordList);
 
 const autoPlayerNames = [
