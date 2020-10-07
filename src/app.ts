@@ -1,10 +1,16 @@
-const express = require("express");
+import express from "express";
+import path from "path";
+import http from "http";
+import socketIO from "socket.io";
+import crypto from "crypto";
+import fs from "fs";
+import { getRandomInt } from "./random/getRandomInt"
+import { Code, GameState, TeamID, Turn } from "../client/src/types/gameState";
+import { Player } from "../client/src/types/player";
+
 const app = express();
-const path = require("path");
-var http = require("http").createServer(app);
-const io = require("socket.io")(http);
-const crypto = require("crypto");
-const fs = require("fs");
+const httpServer = http.createServer(app);
+const io = socketIO(httpServer);
 
 const PORT = process.env.PORT || 3001;
 const DEVELOPMENT = process.env.NODE_ENV.toLowerCase() === "development";
@@ -14,13 +20,13 @@ if (DEVELOPMENT) {
 } else {
   console.log(`Starting in PRODUCTION environment`);
 }
-const logging = (...args) => {
+const logging = (...args: any[]) => {
   if (DEVELOPMENT) {
     console.log(...args);
   }
 };
 
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 const text = fs.readFileSync("./wordlist.txt").toString("utf-8");
 const globalWordList = text.split("\n");
@@ -46,11 +52,9 @@ const autoPlayerNames = [
 ];
 Object.freeze(autoPlayerNames);
 
-const getRandomInt = (max) => {
-  return Math.floor(Math.random() * Math.floor(max));
-};
 
-const getCode = () => {
+
+const getCode = (): Code => {
   const possible = [1, 2, 3, 4];
   const code = [];
 
@@ -61,20 +65,24 @@ const getCode = () => {
     possible.splice(index, 1);
   }
 
-  return code;
+  // TODO Better types
+  if (code.length !== 3) {
+    throw new Error("Code doesn't have the correct length");
+  }
+  return code as Code;
 };
 
-const getRandomWord = (myWordList) => {
+const getRandomWord = (myWordList: string[]): string => {
   const index = getRandomInt(myWordList.length - 1);
   const word = myWordList[index];
   myWordList.splice(index, 1);
   return word;
 };
 
-const makeNewGameState = () => {
+const makeNewGameState = (): GameState => {
   const myWordList = [...globalWordList];
 
-  return {
+  const gameState: GameState = {
     players: [],
     current_transmitter: undefined,
     state: "LOBBY",
@@ -103,28 +111,33 @@ const makeNewGameState = () => {
       players: [],
     },
     history: [],
+    winner: undefined
   };
+
+  return gameState;
 };
-const newTurn = (game_state) => {
-  const firstTurn = game_state.history.length === 0;
+
+
+const newTurn = (gameState: GameState): Turn => {
+  const firstTurn = gameState.history.length === 0;
   if (firstTurn) {
     return {
       type: "INCOMPLETE",
-      encryptor: game_state.red.players[0],
+      encryptor: gameState.red.players[0],
       encryptorTeam: "red",
       code: getCode(),
     };
   }
 
-  const previousTurn = game_state.history[game_state.history.length - 1];
+  const previousTurn = gameState.history[gameState.history.length - 1];
   const lastTeam = previousTurn.encryptorTeam;
   const nextTeam = lastTeam === "red" ? "blue" : "red";
 
   const previousEncryptor =
-    game_state.history.reverse().find((turn) => turn.encryptorTeam === nextTeam)
-      ?.encryptor ?? game_state[nextTeam].players[0];
+    gameState.history.reverse().find((turn) => turn.encryptorTeam === nextTeam)
+      ?.encryptor ?? gameState[nextTeam].players[0];
 
-  const teamMemberIds = game_state[nextTeam].players;
+  const teamMemberIds = gameState[nextTeam].players;
   const lastEncryptorIndex = teamMemberIds.findIndex(
     (playerId) => playerId === previousEncryptor
   );
@@ -138,15 +151,17 @@ const newTurn = (game_state) => {
     type: "INCOMPLETE",
   };
 };
-const games = {};
+
+type GameID = string;
+const games = new Map<GameID, GameState>();
 
 app.get("/new", (req, res) => {
   logging("GET /new");
 
   const gameId = crypto.randomBytes(10).toString("hex");
 
-  game_state = makeNewGameState();
-  games[gameId] = game_state;
+  const newGameState = makeNewGameState();
+  games.set(gameId, newGameState);
   res.end(JSON.stringify(gameId));
   logging("New game created with ID", gameId);
 });
@@ -155,19 +170,19 @@ io.on("connection", (socket) => {
   const gameId = socket.handshake.query.gameId;
   logging("connecting to game ", gameId);
 
-  if (games[gameId] === undefined) {
+  if (games.get(gameId) === undefined) {
     logging("Connection to non-existent game. Ignored");
     return;
   }
 
-  const game_state = games[gameId];
+  const gameState = games.get(gameId);
 
   socket.join(gameId);
 
-  let me = undefined;
-  let reconnect = false;
+  let me: Player = undefined;
+  let reconnect: boolean = false;
 
-  if (game_state.state !== "LOBBY") {
+  if (gameState.state !== "LOBBY") {
     // Is this player one that had previously disconnected
 
     const userId = socket.handshake.query.userId;
@@ -177,7 +192,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    me = game_state.players.find((player) => player.id === userId);
+    me = gameState.players.find((player) => player.id === userId);
 
     if (me === undefined) {
       const reason =
@@ -206,43 +221,43 @@ io.on("connection", (socket) => {
 
   if (!reconnect) {
     logging("New player: ", me.id);
-    game_state.players.push(me);
+    gameState.players.push(me);
   }
 
-  io.to(gameId).emit("game state", game_state);
+  io.to(gameId).emit("game state", gameState);
 
-  logging("Current Players", game_state.players);
+  logging("Current Players", gameState.players);
 
   socket.on("player name", (name) => {
     logging("Player name: ", name);
     me.name = name;
 
-    io.to(gameId).emit("game state", game_state);
+    io.to(gameId).emit("game state", gameState);
   });
 
   socket.on("disconnect", () => {
     logging("user disconnected");
-    const playerIdx = game_state.players.findIndex(
+    const playerIdx = gameState.players.findIndex(
       (player) => player.id === me.id
     );
     if (playerIdx === -1) {
       logging("unknown user disconnected, that's odd!");
     } else {
-      if (game_state.state !== "LOBBY") {
+      if (gameState.state !== "LOBBY") {
         // If the game is started, we want to allow people to reconnect
-        game_state.players[playerIdx].status = "disconnected";
+        gameState.players[playerIdx].status = "disconnected";
       } else {
         // Just remove people in the lobby if they drop.
-        game_state.players.splice(playerIdx, 1);
+        gameState.players.splice(playerIdx, 1);
       }
     }
-    io.to(gameId).emit("game state", game_state);
+    io.to(gameId).emit("game state", gameState);
 
-    logging("Current Players", game_state.players);
-    if (!game_state.players.some((player) => player.status === "connected")) {
+    logging("Current Players", gameState.players);
+    if (!gameState.players.some((player) => player.status === "connected")) {
       // Game is empty, clean it up.
       logging(`Game ${gameId} has no active connections, destroying.`);
-      delete games[gameId];
+      games.delete(gameId);
     }
   });
 
@@ -250,26 +265,30 @@ io.on("connection", (socket) => {
     logging(`player ${me.id} is transmitting [${transmission}]`);
 
     if (
-      game_state.history[game_state.history.length - 1].transmission !==
+      gameState.history[gameState.history.length - 1].transmission !==
       undefined
     ) {
       logging("Attempting to transmit again.");
       throw new Error("Can't transmit twice for a single turn");
     }
 
-    game_state.history[
-      game_state.history.length - 1
+    gameState.history[
+      gameState.history.length - 1
     ].transmission = transmission;
 
-    io.to(gameId).emit("game state", game_state);
+    io.to(gameId).emit("game state", gameState);
   });
 
-  socket.on("guess", ({ team, guess }) => {
+  socket.on("guess", ({ teamU, guessU }) => {
+    // TODO Make type check functions
+    const team: TeamID = teamU;
+    const guess: Code = guessU;
+
     logging(
       `player ${me.id} has submitted guess ${guess} on behalf of team ${team}`
     );
 
-    const currentTurn = game_state.history[game_state.history.length - 1];
+    const currentTurn = gameState.history[gameState.history.length - 1];
 
     // Record the guess
     currentTurn.guesses = {
@@ -285,13 +304,13 @@ io.on("connection", (socket) => {
 
     if (correct && interceptor) {
       // We got it correct, and we are intercepting. Get an interception point
-      game_state[team].interceptions = game_state[team].interceptions + 1;
+      gameState[team].interceptions = gameState[team].interceptions + 1;
     }
 
     if (!correct && !interceptor) {
       // We got it wrong, and we were the intended recepient, Get a transmission failure point
-      game_state[team].transmission_fails =
-        game_state[team].transmission_fails + 1;
+      gameState[team].transmission_fails =
+        gameState[team].transmission_fails + 1;
     }
     // If  both teams have guessed then this is the end of the turn
     if (
@@ -301,12 +320,12 @@ io.on("connection", (socket) => {
       currentTurn.type = "COMPLETE";
     }
 
-    logging("Game State: ", JSON.stringify(game_state, null, 4));
-    io.to(gameId).emit("game state", game_state);
+    logging("Game State: ", JSON.stringify(gameState, null, 4));
+    io.to(gameId).emit("game state", gameState);
   });
 
   socket.on("end turn", () => {
-    const currentTurn = game_state.history[game_state.history.length - 1];
+    const currentTurn = gameState.history[gameState.history.length - 1];
 
     // The turn should be complete
     if (currentTurn.type !== "COMPLETE") {
@@ -318,16 +337,16 @@ io.on("connection", (socket) => {
     let redWin = false;
     // If the current number of turns is even, then it's a fair time to check the scores
     // and see if a team has won.
-    if (game_state.history.length % 2 === 0) {
+    if (gameState.history.length % 2 === 0) {
       if (
-        game_state["blue"].interceptions >= 2 ||
-        game_state["red"].transmission_fails >= 2
+        gameState["blue"].interceptions >= 2 ||
+        gameState["red"].transmission_fails >= 2
       ) {
         blueWin = true;
       }
       if (
-        game_state["red"].interceptions >= 2 ||
-        game_state["blue"].transmission_fails >= 2
+        gameState["red"].interceptions >= 2 ||
+        gameState["blue"].transmission_fails >= 2
       ) {
         redWin = true;
       }
@@ -335,43 +354,43 @@ io.on("connection", (socket) => {
 
     if (redWin || blueWin) {
       // The game is over.
-      game_state.state = "FINISHED";
-      game_state.winner = redWin && blueWin ? "draw" : redWin ? "red" : "blue";
+      gameState.state = "FINISHED";
+      gameState.winner = redWin && blueWin ? "draw" : redWin ? "red" : "blue";
     } else {
-      game_state.history.push(newTurn(game_state));
+      gameState.history.push(newTurn(gameState));
     }
 
-    logging("Game State: ", JSON.stringify(game_state, null, 4));
-    io.to(gameId).emit("game state", game_state);
+    logging("Game State: ", JSON.stringify(gameState, null, 4));
+    io.to(gameId).emit("game state", gameState);
   });
 
   socket.on("start game", () => {
     logging("New Game");
 
-    game_state.state = "RUNNING";
+    gameState.state = "RUNNING";
 
-    const getTeam = (game_state) => {
-      const redSize = game_state.red.players.length;
-      const blueSize = game_state.blue.players.length;
+    const getTeam = (gameState: GameState): TeamID => {
+      const redSize = gameState.red.players.length;
+      const blueSize = gameState.blue.players.length;
 
       return redSize > blueSize ? "blue" : "red";
     };
-    game_state.players.forEach((player) => {
-      const team = getTeam(game_state);
+    gameState.players.forEach((player) => {
+      const team = getTeam(gameState);
 
-      game_state[team].players.push(player.id);
+      gameState[team].players.push(player.id);
     });
-    game_state.history.push(newTurn(game_state));
+    gameState.history.push(newTurn(gameState));
 
-    logging("Game State: ", game_state);
-    io.to(gameId).emit("game state", game_state);
+    logging("Game State: ", gameState);
+    io.to(gameId).emit("game state", gameState);
   });
 });
 
 app.get("*", function (req, res) {
-  res.sendFile("index.html", { root: path.join(__dirname, "/public/") });
+  res.sendFile("index.html", { root: path.join(__dirname, "../client/build/") });
 });
 
-http.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`listening on *:${PORT}`);
 });

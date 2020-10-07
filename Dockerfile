@@ -8,8 +8,8 @@ ENV NODE_ENV production
 
 RUN npm install
 
-COPY app.js .
+COPY dist/* .
 COPY wordlist.txt .
-COPY public ./public
+COPY client/build ./public
 
 CMD [ "node", "app.js" ]
