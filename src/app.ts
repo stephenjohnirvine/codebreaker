@@ -7,6 +7,7 @@ import fs from "fs";
 import { getRandomInt } from "./random/getRandomInt"
 import { Code, GameState, TeamID, Turn } from "../client/src/types/gameState";
 import { Player } from "../client/src/types/player";
+import { newTurn } from "./game/turns/newTurn";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -52,26 +53,6 @@ const autoPlayerNames = [
 ];
 Object.freeze(autoPlayerNames);
 
-
-
-const getCode = (): Code => {
-  const possible = [1, 2, 3, 4];
-  const code = [];
-
-  while (code.length < 3) {
-    const index = getRandomInt(possible.length);
-    const num = possible[index];
-    code.push(num);
-    possible.splice(index, 1);
-  }
-
-  // TODO Better types
-  if (code.length !== 3) {
-    throw new Error("Code doesn't have the correct length");
-  }
-  return code as Code;
-};
-
 const getRandomWord = (myWordList: string[]): string => {
   const index = getRandomInt(myWordList.length - 1);
   const word = myWordList[index];
@@ -115,41 +96,6 @@ const makeNewGameState = (): GameState => {
   };
 
   return gameState;
-};
-
-
-const newTurn = (gameState: GameState): Turn => {
-  const firstTurn = gameState.history.length === 0;
-  if (firstTurn) {
-    return {
-      type: "INCOMPLETE",
-      encryptor: gameState.red.players[0],
-      encryptorTeam: "red",
-      code: getCode(),
-    };
-  }
-
-  const previousTurn = gameState.history[gameState.history.length - 1];
-  const lastTeam = previousTurn.encryptorTeam;
-  const nextTeam = lastTeam === "red" ? "blue" : "red";
-
-  const previousEncryptor =
-    gameState.history.reverse().find((turn) => turn.encryptorTeam === nextTeam)
-      ?.encryptor ?? gameState[nextTeam].players[0];
-
-  const teamMemberIds = gameState[nextTeam].players;
-  const lastEncryptorIndex = teamMemberIds.findIndex(
-    (playerId) => playerId === previousEncryptor
-  );
-  const nextEncryptorId =
-    teamMemberIds[(lastEncryptorIndex + 1) % teamMemberIds.length];
-
-  return {
-    encryptor: nextEncryptorId,
-    encryptorTeam: nextTeam,
-    code: getCode(),
-    type: "INCOMPLETE",
-  };
 };
 
 type GameID = string;

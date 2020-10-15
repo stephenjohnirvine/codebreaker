@@ -1,4 +1,3 @@
-import { Turn } from "../../../src/types/gameState";
 import { MockServer } from "../../support/mockServer";
 
 describe("when it is your turn to transmit", () => {
