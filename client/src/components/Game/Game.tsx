@@ -10,11 +10,12 @@ import {
 } from '../../types/gameState';
 import { GameLobby } from '../GameLobby/GameLobby';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
-import io from 'socket.io-client';
 import { GameRunning } from '../GameRunning/GameRunning';
 import { GameOver } from '../GameOver/GameOver';
 
 import { withCookies, Cookies } from 'react-cookie';
+import { Server } from '../../server/server';
+import { getServer } from '../../server/getServer';
 
 type PathParamsType = {
   id: string;
@@ -32,7 +33,7 @@ interface GameReactState {
 const PLAYER_COOKIE_ID = 'codebreaker-player-id';
 
 class Game extends React.Component<GameProps, GameReactState> {
-  private socket: SocketIOClient.Socket | undefined;
+  private socket: Server | undefined;
 
   public constructor(props: GameProps) {
     super(props);
@@ -48,22 +49,17 @@ class Game extends React.Component<GameProps, GameReactState> {
   }
 
   componentDidMount() {
-    this.socket = io({
-      query: {
-        gameId: this.state.gameId,
-        userId: this.state.myId,
-      },
-    });
-    //   this.socket = io(`/game/${this.props.match.params.id}`);
+    this.socket = getServer(this.state.gameId, this.state.myId);
+
     window.addEventListener('beforeunload', this.componentCleanup);
 
-    this.socket.on('welcome', (player: Player) => {
+    this.socket.onWelcome((player: Player) => {
       this.props.cookies.set(PLAYER_COOKIE_ID, player.id);
       this.setState({
         myId: player.id,
       });
     });
-    this.socket.on('game state', (game: GameState) => {
+    this.socket.onGameState((game: GameState) => {
       this.setState({
         game,
       });
@@ -79,30 +75,28 @@ class Game extends React.Component<GameProps, GameReactState> {
     if (this.socket === undefined) {
       throw new Error('No socket connection when unmounting');
     }
-    this.socket.emit('disconnect');
-    this.socket.disconnect();
-    this.socket.close();
+    this.socket.emitDisconnect();
   }
 
   private onNameChange(name: string) {
     if (this.socket === undefined) {
       throw new Error('Callback called before socket connection established');
     }
-    this.socket.emit('player name', name);
+    this.socket.emitPlayerName(name);
   }
 
   private onGameStart() {
     if (this.socket === undefined) {
       throw new Error('Callback called before socket connection established');
     }
-    this.socket.emit('start game');
+    this.socket.emitStartGame();
   }
 
   private onEndTurn() {
     if (this.socket === undefined) {
       throw new Error('Callback called before socket connection established');
     }
-    this.socket.emit('end turn');
+    this.socket.emitEndTurn();
   }
 
   private onTeamGuess(team: TeamID, guess: Code) {
@@ -110,7 +104,7 @@ class Game extends React.Component<GameProps, GameReactState> {
       throw new Error('Callback called before socket connection established');
     }
 
-    this.socket.emit('guess', { team, guess });
+    this.socket.emitGuess(team, guess);
   }
 
   private onTransmit(transmission: Transmission) {
@@ -118,7 +112,7 @@ class Game extends React.Component<GameProps, GameReactState> {
       throw new Error('Callback called before socket connection established');
     }
 
-    this.socket.emit('transmission', transmission);
+    this.socket.emitTransmission(transmission);
   }
 
   public render() {

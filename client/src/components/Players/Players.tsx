@@ -17,9 +17,9 @@ export const Players = ({ players }: PlayersProps) => (
     <tbody>
       {players.map((player: any) => {
         return (
-          <tr key={player.id}>
+          <div key={player.id}>
             <Player player={player} />
-          </tr>
+          </div>
         );
       })}
     </tbody>

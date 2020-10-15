@@ -279,11 +279,7 @@ io.on("connection", (socket) => {
     io.to(gameId).emit("game state", gameState);
   });
 
-  socket.on("guess", ({ teamU, guessU }) => {
-    // TODO Make type check functions
-    const team: TeamID = teamU;
-    const guess: Code = guessU;
-
+  socket.on("guess", ({ team, guess }: { team: TeamID, guess: Code }) => {
     logging(
       `player ${me.id} has submitted guess ${guess} on behalf of team ${team}`
     );
@@ -388,9 +384,11 @@ io.on("connection", (socket) => {
 });
 
 app.get("*", function (req, res) {
-  res.sendFile("index.html", { root: path.join(__dirname, "../client/build/") });
+  res.sendFile("index.html", {
+    root: path.join(__dirname, "../public")
+  });
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`listening on *:${PORT}`);
+  console.log(`listening on *: ${PORT}`);
 });
