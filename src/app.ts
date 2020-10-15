@@ -99,7 +99,20 @@ const makeNewGameState = (): GameState => {
 };
 
 type GameID = string;
-const games = new Map<GameID, GameState>();
+const games = new Map<GameID, { state: GameState, lastActivity: Date }>();
+
+const inactiveGameKillTime = 4.32e+7; // 12 Hours
+const garbageCollectInterval = 3.6e+6; // 1 Hour
+setInterval(() => {
+  const now = new Date();
+  for (const gameId in games.keys()) {
+    const timeSinceLastActivity = now.getTime() - games.get(gameId).lastActivity.getTime()
+    if (timeSinceLastActivity > inactiveGameKillTime) {
+      logging(`Game: ${gameId} has had no activity for ${timeSinceLastActivity / 1000 / 60 / 60} hours. Deleting.)}`)
+      games.delete(gameId);
+    }
+  }
+}, garbageCollectInterval)
 
 app.get("/new", (req, res) => {
   logging("GET /new");
@@ -107,7 +120,7 @@ app.get("/new", (req, res) => {
   const gameId = crypto.randomBytes(10).toString("hex");
 
   const newGameState = makeNewGameState();
-  games.set(gameId, newGameState);
+  games.set(gameId, { state: newGameState, lastActivity: new Date() });
   res.end(JSON.stringify(gameId));
   logging("New game created with ID", gameId);
 });
@@ -121,7 +134,16 @@ io.on("connection", (socket) => {
     return;
   }
 
-  const gameState = games.get(gameId);
+  const gameState = games.get(gameId).state;
+
+  // Update game activity date
+  games.get(gameId).lastActivity = new Date();
+  socket.use((_, next) => {
+    // Update last activity on all other activity on this socket
+    games.get(gameId).lastActivity = new Date();
+
+    return next();
+  });
 
   socket.join(gameId);
 
@@ -202,8 +224,9 @@ io.on("connection", (socket) => {
     logging("Current Players", gameState.players);
     if (!gameState.players.some((player) => player.status === "connected")) {
       // Game is empty, clean it up.
-      logging(`Game ${gameId} has no active connections, destroying.`);
-      games.delete(gameId);
+      logging(`Game ${gameId} has no active connections, logging last activity.`);
+
+      games.get(gameId).lastActivity = new Date();
     }
   });
 
