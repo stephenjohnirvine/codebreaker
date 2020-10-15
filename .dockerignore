@@ -1,5 +1,8 @@
-node_modules
-npm-debug.log
-.prettierrc
-yarn*
-.vscode
+**/node_modules
+**/npm-debug.log
+**/.prettierrc
+**/yarn*
+**/.vscode
+**/*.ts
+**/.git
+**/*.map

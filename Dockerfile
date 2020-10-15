@@ -4,12 +4,13 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-ENV NODE_ENV production
+RUN npm install --production --verbose
 
-RUN npm install
-
-COPY dist/* .
+COPY dist .
 COPY wordlist.txt .
 COPY client/build ./public
+RUN find . -path ./node_modules -prune -o -name '*'
 
-CMD [ "node", "app.js" ]
+ENV NODE_ENV production
+
+CMD [  "node", "src/app.js" ]
