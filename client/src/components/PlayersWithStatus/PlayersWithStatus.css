@@ -1,0 +1,30 @@
+.playersWithStatusMain {
+  padding: 5px;
+  background-color: whitesmoke;
+  border-radius: 3px;
+  margin: 5px 0px;
+}
+
+.playersWithStatusRow {
+  display: flex;
+  align-items: center;
+}
+
+.teamStatusBlob {
+  height: 40px;
+  width: 30px;
+  border-radius: 50% 0% 0% 50%;
+}
+
+.transmittingStatus {
+  height: 40px;
+  width: 40px;
+  background-color: lightgreen;
+  border-radius: 50% 50% 50% 50%;
+  display: flex;
+  padding-left: 5px;
+}
+
+.transmittingImage {
+  padding-left: 7px;
+}

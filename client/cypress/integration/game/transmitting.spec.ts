@@ -24,18 +24,17 @@ describe("when it is your turn to transmit", () => {
             blue: {
                 cypher: ['b_c_1', 'b_c_2', 'b_c_3', 'b_c_4'],
                 interceptions: 0,
-                last_transmitter: "p1",
+                lastTransmitter: "p1",
                 players: ["p1", "p2"],
-                transmission_fails: 0
+                transmissionFailures: 0
             },
             red: {
                 cypher: ['r_c_1', 'r_c_2', 'r_c_3', 'r_c_4'],
                 interceptions: 0,
-                last_transmitter: "p3",
+                lastTransmitter: "p3",
                 players: ["p3", "p4"],
-                transmission_fails: 0
+                transmissionFailures: 0
             },
-            current_transmitter: "p1",
             history: [
                 {
                     code: [1, 2, 3],

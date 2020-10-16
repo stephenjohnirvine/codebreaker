@@ -65,12 +65,11 @@ const makeNewGameState = (): GameState => {
 
   const gameState: GameState = {
     players: [],
-    current_transmitter: undefined,
     state: "LOBBY",
     red: {
       interceptions: 0,
-      transmission_fails: 0,
-      last_transmitter: undefined,
+      transmissionFailures: 0,
+      lastTransmitter: undefined,
       cypher: [
         getRandomWord(myWordList),
         getRandomWord(myWordList),
@@ -81,8 +80,8 @@ const makeNewGameState = (): GameState => {
     },
     blue: {
       interceptions: 0,
-      transmission_fails: 0,
-      last_transmitter: undefined,
+      transmissionFailures: 0,
+      lastTransmitter: undefined,
       cypher: [
         getRandomWord(myWordList),
         getRandomWord(myWordList),
@@ -273,9 +272,9 @@ io.on("connection", (socket) => {
     }
 
     if (!correct && !interceptor) {
-      // We got it wrong, and we were the intended recepient, Get a transmission failure point
-      gameState[team].transmission_fails =
-        gameState[team].transmission_fails + 1;
+      // We got it wrong, and we were the intended recipient, Get a transmission failure point
+      gameState[team].transmissionFailures =
+        gameState[team].transmissionFailures + 1;
     }
     // If  both teams have guessed then this is the end of the turn
     if (
@@ -305,13 +304,13 @@ io.on("connection", (socket) => {
     if (gameState.history.length % 2 === 0) {
       if (
         gameState["blue"].interceptions >= 2 ||
-        gameState["red"].transmission_fails >= 2
+        gameState["red"].transmissionFailures >= 2
       ) {
         blueWin = true;
       }
       if (
         gameState["red"].interceptions >= 2 ||
-        gameState["blue"].transmission_fails >= 2
+        gameState["blue"].transmissionFailures >= 2
       ) {
         redWin = true;
       }

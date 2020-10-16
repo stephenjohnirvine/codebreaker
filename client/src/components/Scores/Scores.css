@@ -1,0 +1,56 @@
+.scoresMain {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: lightgray;
+  border-radius: 3px;
+}
+
+.scoresRow {
+  display: flex;
+}
+
+.scoresColumns {
+  display: flex;
+  flex-grow: 1;
+}
+
+.scoresColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.scoresLabel {
+  background-color: whitesmoke;
+  border-radius: 3px;
+  padding: 5px;
+  margin: 3px;
+}
+
+.scoresLabelsColumn {
+  flex-grow: 1;
+}
+
+.scoresNumberBox {
+  background-color: grey;
+  border-radius: 3px;
+  padding: 5px;
+  margin: 3px;
+}
+
+.scoresTeam {
+  flex-grow: 1;
+}
+
+.scoresTeamName {
+  border-radius: 3px;
+  padding: 5px;
+  margin: 3px;
+}
+
+.red {
+  background-color: red;
+}
+
+.blue {
+  background-color: blue;
+}

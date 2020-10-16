@@ -12,19 +12,18 @@ export default {
 const Template: Story<GameRunningProps> = (args) => <GameRunning {...args} />;
 
 const gameBase: GameState = {
-  current_transmitter: 'p1',
   blue: {
     cypher: ['apple', 'bear', 'cheese', 'donkey'],
     interceptions: 0,
-    transmission_fails: 0,
-    last_transmitter: undefined,
+    transmissionFailures: 0,
+    lastTransmitter: undefined,
     players: ['p1', 'p2', 'p5'],
   },
   red: {
     cypher: ['elephant', 'fridge', 'goat', 'house'],
     interceptions: 0,
-    transmission_fails: 0,
-    last_transmitter: undefined,
+    transmissionFailures: 0,
+    lastTransmitter: undefined,
     players: ['p3', 'p4', 'p6'],
   },
   players: [

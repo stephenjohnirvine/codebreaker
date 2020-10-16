@@ -12,8 +12,8 @@ export type Transmission = [string, string, string];
 
 export type Team = {
     interceptions: number,
-    transmission_fails: number,
-    last_transmitter: PlayerID | undefined,
+    transmissionFailures: number,
+    lastTransmitter: PlayerID | undefined,
     cypher: [string, string, string, string],
     players: Array<PlayerID>
 };
@@ -46,7 +46,6 @@ export type CompletedTurn = CommonTurn & {
 
 export type GameState = {
     players: Player[],
-    current_transmitter: PlayerID | undefined,
     state: GameStates,
     red: Team,
     blue: Team

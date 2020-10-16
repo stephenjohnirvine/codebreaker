@@ -9,8 +9,8 @@ import {
 import { YourTeam } from '../YourTeam/YourTeam';
 import { OtherTeam } from '../OtherTeam/OtherTeam';
 import { GameStatus } from '../GameStatus/GameStatus';
-import { Players } from '../Players/Players';
 import './GameRunning.css';
+import { PlayersWithStatus } from '../PlayersWithStatus/PlayersWithStatus';
 
 export type GameRunningProps = {
   game: GameState;
@@ -50,7 +50,12 @@ export const GameRunning = ({
       </div>
       <div className="sidePanel">
         <GameStatus game={game} />
-        <Players players={game.players} />
+        <PlayersWithStatus
+          players={game.players}
+          red={game.red.players}
+          blue={game.blue.players}
+          transmitting={game.history[game.history.length - 1].encryptor}
+        />
       </div>
     </div>
   );
