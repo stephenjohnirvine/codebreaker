@@ -47,12 +47,12 @@ export const Scores = ({ blue, red }: ScoresProps) => (
     <TeamScore
       team={'red'}
       transmissionFailures={red.transmissionFailures}
-      interceptions={red.transmissionFailures}
+      interceptions={red.interceptions}
     />
     <TeamScore
       team={'blue'}
       transmissionFailures={blue.transmissionFailures}
-      interceptions={blue.transmissionFailures}
+      interceptions={blue.interceptions}
     />
   </div>
 );
