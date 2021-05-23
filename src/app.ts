@@ -4,7 +4,7 @@ import http from "http";
 import socketIO from "socket.io";
 import crypto from "crypto";
 import fs from "fs";
-import { getRandomInt } from "./random/getRandomInt"
+import { getRandomInt } from "./random/getRandomInt";
 import { Code, GameState, TeamID, Turn } from "../client/src/types/gameState";
 import { Player } from "../client/src/types/player";
 import { newTurn } from "./game/turns/newTurn";
@@ -21,13 +21,17 @@ if (DEVELOPMENT) {
 } else {
   console.log(`Starting in PRODUCTION environment`);
 }
-const logging = (...args: any[]) => {
+const devLogging = (...args: any[]) => {
   if (DEVELOPMENT) {
-    console.log(...args);
+    logging(args);
   }
 };
 
-app.use(express.static('public'));
+const logging = (...args: any[]) => {
+  console.log(...args);
+};
+
+app.use(express.static("public"));
 
 const text = fs.readFileSync("./wordlist.txt").toString("utf-8");
 const globalWordList = text.split("\n");
@@ -91,27 +95,32 @@ const makeNewGameState = (): GameState => {
       players: [],
     },
     history: [],
-    winner: undefined
+    winner: undefined,
   };
 
   return gameState;
 };
 
 type GameID = string;
-const games = new Map<GameID, { state: GameState, lastActivity: Date }>();
+const games = new Map<GameID, { state: GameState; lastActivity: Date }>();
 
-const inactiveGameKillTime = 4.32e+7; // 12 Hours
-const garbageCollectInterval = 3.6e+6; // 1 Hour
+const inactiveGameKillTime = 4.32e7; // 12 Hours
+const garbageCollectInterval = 3.6e6; // 1 Hour
 setInterval(() => {
   const now = new Date();
   for (const gameId in games.keys()) {
-    const timeSinceLastActivity = now.getTime() - games.get(gameId).lastActivity.getTime()
+    const timeSinceLastActivity =
+      now.getTime() - games.get(gameId).lastActivity.getTime();
     if (timeSinceLastActivity > inactiveGameKillTime) {
-      logging(`Game: ${gameId} has had no activity for ${timeSinceLastActivity / 1000 / 60 / 60} hours. Deleting.)}`)
+      logging(
+        `Game: ${gameId} has had no activity for ${
+          timeSinceLastActivity / 1000 / 60 / 60
+        } hours. Deleting.)}`
+      );
       games.delete(gameId);
     }
   }
-}, garbageCollectInterval)
+}, garbageCollectInterval);
 
 app.get("/new", (req, res) => {
   logging("GET /new");
@@ -196,7 +205,7 @@ io.on("connection", (socket) => {
   logging("Current Players", gameState.players);
 
   socket.on("player name", (name) => {
-    logging("Player name: ", name);
+    devLogging("Player name: ", name);
     me.name = name;
 
     io.to(gameId).emit("game state", gameState);
@@ -223,31 +232,30 @@ io.on("connection", (socket) => {
     logging("Current Players", gameState.players);
     if (!gameState.players.some((player) => player.status === "connected")) {
       // Game is empty, clean it up.
-      logging(`Game ${gameId} has no active connections, logging last activity.`);
+      logging(
+        `Game ${gameId} has no active connections, logging last activity.`
+      );
 
       games.get(gameId).lastActivity = new Date();
     }
   });
 
   socket.on("transmission", (transmission) => {
-    logging(`player ${me.id} is transmitting [${transmission}]`);
+    devLogging(`player ${me.id} is transmitting [${transmission}]`);
 
     if (
-      gameState.history[gameState.history.length - 1].transmission !==
-      undefined
+      gameState.history[gameState.history.length - 1].transmission !== undefined
     ) {
-      logging("Attempting to transmit again.");
+      logging("ERROR: Attempting to transmit twice in a single turn");
       throw new Error("Can't transmit twice for a single turn");
     }
 
-    gameState.history[
-      gameState.history.length - 1
-    ].transmission = transmission;
+    gameState.history[gameState.history.length - 1].transmission = transmission;
 
     io.to(gameId).emit("game state", gameState);
   });
 
-  socket.on("guess", ({ team, guess }: { team: TeamID, guess: Code }) => {
+  socket.on("guess", ({ team, guess }: { team: TeamID; guess: Code }) => {
     logging(
       `player ${me.id} has submitted guess ${guess} on behalf of team ${team}`
     );
@@ -284,7 +292,7 @@ io.on("connection", (socket) => {
       currentTurn.type = "COMPLETE";
     }
 
-    logging("Game State: ", JSON.stringify(gameState, null, 4));
+    devLogging("Game State: ", JSON.stringify(gameState, null, 4));
     io.to(gameId).emit("game state", gameState);
   });
 
@@ -324,7 +332,7 @@ io.on("connection", (socket) => {
       gameState.history.push(newTurn(gameState));
     }
 
-    logging("Game State: ", JSON.stringify(gameState, null, 4));
+    devLogging("Game State: ", JSON.stringify(gameState, null, 4));
     io.to(gameId).emit("game state", gameState);
   });
 
@@ -346,14 +354,14 @@ io.on("connection", (socket) => {
     });
     gameState.history.push(newTurn(gameState));
 
-    logging("Game State: ", gameState);
+    devLogging("Game State: ", gameState);
     io.to(gameId).emit("game state", gameState);
   });
 });
 
 app.get("*", function (req, res) {
   res.sendFile("index.html", {
-    root: path.join(__dirname, "../public")
+    root: path.join(__dirname, "../public"),
   });
 });
 
